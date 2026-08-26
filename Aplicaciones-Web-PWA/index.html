@@ -1,13 +1,87 @@
-<!doctype html>
-<html lang="en">
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Explorador mundial de países y planificador de viajes con soporte offline" />
+    <meta name="theme-color" content="#1e293b" />
+    
+    <title>Explorador de Países PWA</title>
+    
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>aplicaciones-web-pwa</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
   <body>
-    <div id="app"></div>
+    <!-- 1. Cabecera Semántica -->
+    <header class="header">
+      <a href="#/" class="header__logo">
+        <span>🌍</span>
+        <span>MundoPWA</span>
+      </a>
+
+      <!-- Navegación superior (Visible en tablets y desktop) -->
+      <nav class="header__nav" aria-label="Navegación principal de escritorio">
+        <!-- Se sincroniza dinámicamente -->
+      </nav>
+
+      <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema de color" title="Alternar tema">
+        <span class="theme-icon">🌙</span>
+      </button>
+    </header>
+
+    <!-- 2. Contenedor Dinámico para las Vistas SPA -->
+    <main id="app" class="container" role="main" aria-live="polite">
+      <!-- El Router renderiza aquí las vistas (Home, Búsqueda, Detalle, etc.) -->
+    </main>
+
+    <!-- 3. Barra de Navegación Inferior (Mobile First) -->
+    <nav class="bottom-nav" aria-label="Navegación inferior móvil">
+      <a href="#/" class="nav-item" data-route="/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Inicio</span>
+      </a>
+
+      <a href="#/search" class="nav-item" data-route="/search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>Buscar</span>
+      </a>
+
+      <a href="#/wishlist" class="nav-item" data-route="/wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        <span>Deseos</span>
+      </a>
+
+      <a href="#/history" class="nav-item" data-route="/history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Historial</span>
+      </a>
+
+      <a href="#/contact" class="nav-item" data-route="/contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Contacto</span>
+      </a>
+    </nav>
+
+    <!-- 4. Contenedor para Modales y Toasts -->
+    <div id="modal-root" aria-hidden="true"></div>
+    <div id="toast-root" aria-live="assertive"></div>
+
+    <!-- Script de Entrada -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

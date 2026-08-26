@@ -1,0 +1,61 @@
+/* src/styles/03-layout.css */
+/* Contenedor fluido con padding horizontal en smartphones */
+.container {
+  width: 100%;
+  padding-inline: var(--space-md);
+  margin-inline: auto;
+}
+
+/* Espaciado para compensar la barra inferior de navegación en móviles */
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-bottom: 72px; /* Altura de la Bottom Navigation Bar */
+}
+
+/* --- REQUERIMIENTO RF8: Grilla Responsive Mobile-First --- */
+
+/* 1. Base Mobile-First: Móvil Portrait (hasta 480px) -> 1 por fila */
+.countries-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  margin-block: var(--space-lg);
+}
+
+/* 2. Móvil Landscape (481px a 767px) -> 2 por fila */
+@media (min-width: 481px) {
+  .countries-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+}
+
+/* 3. Tablet (768px a 1023px) -> 3 por fila */
+@media (min-width: 768px) {
+  #app {
+    padding-bottom: 0; /* En tablet y desktop se usa navbar superior */
+  }
+
+  .container {
+    padding-inline: var(--space-lg);
+  }
+
+  .countries-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+  }
+}
+
+/* 4. Desktop (1024px o más) -> 4 por fila con ancho contenido */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+  }
+
+  .countries-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+  }
+}

@@ -1,60 +1,63 @@
-import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+// src/main.ts
+import './styles/main.css';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+const app = document.getElementById('app');
+const themeToggle = document.getElementById('theme-toggle');
 
-<div class="ticks"></div>
+// Renderizado provisional de prueba para verificar layout y estilos
+if (app) {
+  app.innerHTML = `
+    <section style="margin-top: 1.5rem; text-align: center;">
+      <h1 style="margin-bottom: 0.5rem;">🌍 Explorador de Países</h1>
+      <p style="margin-bottom: 1.5rem;">Prueba de Layout Mobile-First y App Shell.</p>
+      
+      <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem;">
+        <button class="btn btn-primary">Botón Primario</button>
+        <button class="btn btn-secondary">Botón Secundario</button>
+      </div>
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+      <!-- Grilla responsive de prueba -->
+      <div class="countries-grid">
+        <article class="card">
+          <div class="card__flag-wrapper">
+            <img src="https://flagcdn.com/w640/ar.png" alt="Bandera de Argentina" class="card__flag" loading="lazy" />
+          </div>
+          <div class="card__body">
+            <h3 class="card__title">Argentina</h3>
+            <div class="card__info">
+              <span><strong>Capital:</strong> Buenos Aires</span>
+              <span><strong>Región:</strong> Americas</span>
+              <span><strong>Población:</strong> 45.808.747</span>
+            </div>
+          </div>
+        </article>
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+        <article class="card">
+          <div class="card__flag-wrapper">
+            <img src="https://flagcdn.com/w640/jp.png" alt="Bandera de Japón" class="card__flag" loading="lazy" />
+          </div>
+          <div class="card__body">
+            <h3 class="card__title">Japón</h3>
+            <div class="card__info">
+              <span><strong>Capital:</strong> Tokio</span>
+              <span><strong>Región:</strong> Asia</span>
+              <span><strong>Población:</strong> 125.800.000</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  `;
+}
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+// Controlador de Tema (Dark / Light)
+themeToggle?.addEventListener('click', () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  
+  const icon = themeToggle.querySelector('.theme-icon');
+  if (icon) {
+    icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+  }
+});

@@ -1,0 +1,7 @@
+/* src/styles/main.css */
+/* Importador maestro */
+@import './00-variables.css';
+@import './01-reset.css';
+@import './02-base.css';
+@import './03-layout.css';
+@import './04-components.css';
