@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -10,32 +9,25 @@
     <title>Explorador de Países PWA</title>
     
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
   <body>
-    <!-- 1. Cabecera Semántica -->
     <header class="header">
       <a href="#/" class="header__logo">
         <span>🌍</span>
         <span>MundoPWA</span>
       </a>
 
-      <!-- Navegación superior (Visible en tablets y desktop) -->
       <nav class="header__nav" aria-label="Navegación principal de escritorio">
-        <!-- Se sincroniza dinámicamente -->
       </nav>
-
-      <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema de color" title="Alternar tema">
-        <span class="theme-icon">🌙</span>
-      </button>
     </header>
 
-    <!-- 2. Contenedor Dinámico para las Vistas SPA -->
     <main id="app" class="container" role="main" aria-live="polite">
-      <!-- El Router renderiza aquí las vistas (Home, Búsqueda, Detalle, etc.) -->
     </main>
 
-    <!-- 3. Barra de Navegación Inferior (Mobile First) -->
     <nav class="bottom-nav" aria-label="Navegación inferior móvil">
       <a href="#/" class="nav-item" data-route="/">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -77,11 +69,9 @@
       </a>
     </nav>
 
-    <!-- 4. Contenedor para Modales y Toasts -->
     <div id="modal-root" aria-hidden="true"></div>
     <div id="toast-root" aria-live="assertive"></div>
 
-    <!-- Script de Entrada -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
