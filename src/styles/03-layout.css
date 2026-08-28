@@ -24,6 +24,7 @@
   margin-block: var(--space-lg);
 }
 
+
 /* 2. Móvil Landscape (481px a 767px) -> 2 por fila */
 @media (min-width: 481px) {
   .countries-grid {

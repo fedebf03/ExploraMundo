@@ -31,8 +31,16 @@ export interface Country {
     svg?: string;
     alt?: string;
   };
-  languages?: Record<string, string>;
+  languages?: Array<{
+    name?: string;
+    native_name?: string;
+    iso639_1?: string;
+    iso639_2b?: string;
+    iso639_3?: string;
+    bcp47?: string;
+  }> | Record<string, string>;
 }
+
 
 // estructura de la respuesta con paginación de la API
 export interface ApiResponse {
@@ -46,4 +54,3 @@ export interface ApiResponse {
     objects: Country[];
   };
 }
-
