@@ -6,9 +6,10 @@
     <meta name="description" content="Explorador mundial de países y planificador de viajes con soporte offline" />
     <meta name="theme-color" content="#1e293b" />
     
-    <title>Explorador de Países PWA</title>
+    <title>ExploraMundo — Explorador de Países</title>
     
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -17,13 +18,19 @@
   <body>
     <header class="header">
       <a href="#/" class="header__logo">
-        <span>🌍</span>
-        <span>MundoPWA</span>
+        <img src="/logo.png" alt="Logo ExploraMundo" class="header__logo-img" width="38" height="38" />
+        <span class="logo-text">Explora<span class="logo-accent">Mundo</span></span>
       </a>
 
       <nav class="header__nav" aria-label="Navegación principal de escritorio">
+        <a href="#/" class="nav-item" data-route="/">Inicio</a>
+        <a href="#/search" class="nav-item" data-route="/search">Buscar</a>
+        <a href="#/wishlist" class="nav-item" data-route="/wishlist">Deseos</a>
+        <a href="#/history" class="nav-item" data-route="/history">Historial</a>
+        <a href="#/contact" class="nav-item" data-route="/contact">Contacto</a>
       </nav>
     </header>
+
 
     <main id="app" class="container" role="main" aria-live="polite">
     </main>

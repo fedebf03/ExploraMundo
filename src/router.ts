@@ -1,14 +1,15 @@
 import { renderHome } from './views/home.view';
+import { renderSearch } from './views/search.view';
 
 // función para arrancar a escuchar los cambios de pantalla
 export function initRouter() {
-  // escuchamos cuando cambia el hash en la url o cuando carga la página
+  // escuchamos cuando cambia el hash en la url
   window.addEventListener('hashchange', handleRouteChange);
-  window.addEventListener('DOMContentLoaded', handleRouteChange);
 
-  // ejecutamos una vez al principio para cargar la vista que corresponda
+  // ejecutamos una vez al principio para cargar la vista actual
   handleRouteChange();
 }
+
 
 function handleRouteChange() {
   // agarramos la ruta actual del hash (si no hay nada mandamos al inicio)
@@ -27,13 +28,9 @@ function handleRouteChange() {
       break;
 
     case '#/search':
-      app.innerHTML = `
-        <section class="view">
-          <h1>🔍 Búsqueda de Países</h1>
-          <p>Filtros y resultados.</p>
-        </section>
-      `;
+      renderSearch(app);
       break;
+
 
     case '#/wishlist':
       app.innerHTML = `

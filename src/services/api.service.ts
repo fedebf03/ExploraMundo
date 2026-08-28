@@ -36,10 +36,24 @@ export async function getCountries(limit = 10, offset = 0): Promise<ApiResponse>
   return fetchFromApi<ApiResponse>(`?limit=${limit}&offset=${offset}`);
 }
 
-// busca países por nombre
-export async function searchCountriesByName(query: string, limit = 10, offset = 0): Promise<ApiResponse> {
-  return fetchFromApi<ApiResponse>(`?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`);
+// busca países con filtros y paginación directa en la API
+export async function searchCountries(params: {
+  q?: string;
+  region?: string;
+  membership?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<ApiResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.q) searchParams.set('q', params.q);
+  if (params.region) searchParams.set('region', params.region);
+  if (params.membership) searchParams.set(`memberships.${params.membership}`, '1');
+  searchParams.set('limit', String(params.limit ?? 10));
+  searchParams.set('offset', String(params.offset ?? 0));
+
+  return fetchFromApi<ApiResponse>(`?${searchParams.toString()}`);
 }
+
 
 // busca un país puntual por su código de 3 letras (ej: "ARG")
 export async function getCountryByCode(code: string): Promise<Country> {
