@@ -1,5 +1,7 @@
 import { renderHome } from './views/home.view';
 import { renderSearch } from './views/search.view';
+import { renderCountryDetail } from './views/detail.view';
+import { renderWishlist } from './views/wishlist.view';
 
 // función para arrancar a escuchar los cambios de pantalla
 export function initRouter() {
@@ -22,26 +24,24 @@ function handleRouteChange() {
   updateActiveNavLink(hash);
 
   // según la ruta cargamos la pantalla que corresponda
-  switch (hash) {
-    case '#/':
+  switch (true) {
+    case hash === '#/':
       renderHome(app);
       break;
 
-    case '#/search':
+    case hash === '#/search':
       renderSearch(app);
       break;
 
-
-    case '#/wishlist':
-      app.innerHTML = `
-        <section class="view">
-          <h1>💖 Lista de Deseos</h1>
-          <p>Países guardados.</p>
-        </section>
-      `;
+    case hash === '#/wishlist':
+      renderWishlist(app);
       break;
 
-    case '#/history':
+    case hash.startsWith('#/detail/'):
+      renderCountryDetail(app, hash.replace('#/detail/', ''));
+      break;
+
+    case hash === '#/history':
       app.innerHTML = `
         <section class="view">
           <h1>🕒 Historial de Visitas</h1>
@@ -50,7 +50,7 @@ function handleRouteChange() {
       `;
       break;
 
-    case '#/contact':
+    case hash === '#/contact':
       app.innerHTML = `
         <section class="view">
           <h1>📍 Contacto</h1>

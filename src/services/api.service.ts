@@ -57,6 +57,19 @@ export async function searchCountries(params: {
 
 // busca un país puntual por su código de 3 letras (ej: "ARG")
 export async function getCountryByCode(code: string): Promise<Country> {
-  const res = await fetchFromApi<{ data: Country }>(`/codes.alpha_3/${code.toUpperCase()}`);
-  return res.data;
+  const res = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/codes.alpha_3/${code.toUpperCase()}`);
+
+  if (res && typeof res === 'object' && 'data' in res && res.data) {
+    const data = res.data as { objects?: Country[] } | Country;
+
+    if (data && typeof data === 'object' && 'objects' in data && Array.isArray(data.objects) && data.objects.length > 0) {
+      return data.objects[0];
+    }
+
+    if (data && typeof data === 'object') {
+      return data as Country;
+    }
+  }
+
+  throw new Error('No se encontró el país solicitado.');
 }
