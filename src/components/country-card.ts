@@ -25,8 +25,9 @@ export function renderCountryCard(country: Country): string {
 
   return `
     <article class="card">
-      <a href="#/detail/${code}" class="card__link">
+      <a href="#/detalle/${code}" class="card__link">
         <div class="card__flag-wrapper">
+
           <img 
             src="${flagUrl}" 
             alt="Bandera de ${name}" 

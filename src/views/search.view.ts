@@ -5,10 +5,10 @@ import type { Country } from '../types/country';
 let allCountries: Country[] = [];
 let filteredCountries: Country[] = [];
 let currentPage = 1;
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 12;
 let isFetchingAll = false;
 
-// dibuja las tarjetas en pantalla según la página actual
+// dibuja las tarjetas en pantalla segun la pagina actual
 function renderResults() {
   const grid = document.getElementById('search-results');
   const loadMoreBtn = document.getElementById('load-more-btn');
@@ -22,9 +22,10 @@ function renderResults() {
     return;
   }
 
-  // paginamos de a 10 países según la página en la que estamos (RF3)
+  // paginamos de a 12 resultados para completar filas de 1, 2, 3 y 4 columnas
   const visible = filteredCountries.slice(0, currentPage * ITEMS_PER_PAGE);
   grid.innerHTML = visible.map(renderCountryCard).join('');
+
 
   if (count) {
     count.textContent = `Mostrando ${visible.length} de ${filteredCountries.length} destinos`;
@@ -35,7 +36,7 @@ function renderResults() {
   }
 }
 
-// aplica los 3 filtros (nombre, continente, idioma) y el orden
+// filtra y ordena los paises guardados
 function applyFilters() {
   const q = (document.getElementById('search-input') as HTMLInputElement)?.value.trim().toLowerCase();
   const region = (document.getElementById('region-select') as HTMLSelectElement)?.value.toLowerCase();
@@ -47,13 +48,9 @@ function applyFilters() {
     const capital = (c.capitals?.[0]?.name || c.capital?.[0] || '').toLowerCase();
     const cRegion = (c.region || '').toLowerCase();
 
-    // 1. filtro por nombre o capital
     const matchText = !q || name.includes(q) || capital.includes(q);
-
-    // 2. filtro por continente
     const matchRegion = !region || cRegion === region;
 
-    // 3. filtro por idioma oficial
     let matchLang = true;
     if (lang) {
       if (!c.languages || !Array.isArray(c.languages)) {
@@ -62,11 +59,10 @@ function applyFilters() {
         matchLang = c.languages.some((l: any) => {
           const lName = (l.name || '').toLowerCase();
           const lNative = (l.native_name || '').toLowerCase();
-          // iso1 es el código de idioma de 2 letras (ej: "es", "en", "ar") e iso3 es el de 3 letras (ej: "spa", "eng", "ara")
+          // iso1 es el codigo de 2 letras (es, en) e iso3 de 3 letras (spa, eng)
           const iso1 = (l.iso639_1 || '').toLowerCase();
           const iso3 = (l.iso639_3 || l.iso639_2b || '').toLowerCase();
 
-          // comprobamos por código ISO o por nombre para que coincida siempre
           if (lang === 'spanish') return iso1 === 'es' || iso3 === 'spa' || lName.includes('spanish') || lNative.includes('español');
           if (lang === 'english') return iso1 === 'en' || iso3 === 'eng' || lName.includes('english');
           if (lang === 'french') return iso1 === 'fr' || iso3 === 'fra' || lName.includes('french');
@@ -80,11 +76,10 @@ function applyFilters() {
       }
     }
 
-
     return matchText && matchRegion && matchLang;
   });
 
-  // ordenamos los países según el criterio elegido
+  // ordenamos por nombre o cantidad de poblacion
   filteredCountries.sort((a, b) => {
     const nameA = a.names?.common || a.name?.common || '';
     const nameB = b.names?.common || b.name?.common || '';
@@ -92,8 +87,8 @@ function applyFilters() {
     const popB = Number(b.population || 0);
 
     if (sort === 'name-desc') return nameB.localeCompare(nameA);
-    if (sort === 'pop-desc') return popB - popA; // mayor población real
-    if (sort === 'pop-asc') return popA - popB;  // menor población real
+    if (sort === 'pop-desc') return popB - popA;
+    if (sort === 'pop-asc') return popA - popB;
     return nameA.localeCompare(nameB);
   });
 
@@ -101,7 +96,6 @@ function applyFilters() {
   renderResults();
 }
 
-// monta la vista de búsqueda
 export async function renderSearch(container: HTMLElement) {
   container.innerHTML = `
     <section class="view">
@@ -109,8 +103,6 @@ export async function renderSearch(container: HTMLElement) {
         <h1>🔍 Buscá tu próximo destino</h1>
       </div>
 
-
-      <!-- formulario con los 3 filtros principales (RF2) -->
       <form id="search-form" class="search-form" onsubmit="event.preventDefault();">
         <div class="form-group">
           <label for="search-input" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Nombre o capital</label>
@@ -160,12 +152,10 @@ export async function renderSearch(container: HTMLElement) {
         <span id="results-count" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
       </div>
 
-      <!-- grilla de tarjetas de países -->
       <div id="search-results" class="countries-grid">
         <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">Cargando países desde la API...</p>
       </div>
 
-      <!-- botón para paginar más resultados de a 10 (RF3) -->
       <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem;">
         <button id="load-more-btn" class="btn btn-secondary" style="display: none; padding: 0.75rem 2rem;">
           Cargar más destinos
@@ -174,20 +164,19 @@ export async function renderSearch(container: HTMLElement) {
     </section>
   `;
 
-  // escuchamos cambios en el formulario para filtrar en tiempo real
+  // eventos para filtrar al escribir o cambiar select
   document.getElementById('search-form')?.addEventListener('submit', applyFilters);
   document.getElementById('search-input')?.addEventListener('input', applyFilters);
   document.getElementById('region-select')?.addEventListener('change', applyFilters);
   document.getElementById('language-select')?.addEventListener('change', applyFilters);
   document.getElementById('sort-select')?.addEventListener('change', applyFilters);
 
-  // paginar siguientes 10 países
   document.getElementById('load-more-btn')?.addEventListener('click', () => {
     currentPage++;
     renderResults();
   });
 
-  // traemos el catálogo de países de la API si todavía no está en memoria
+  // traemos la lista de paises si todavia no los pedimos
   if (allCountries.length === 0 && !isFetchingAll) {
     isFetchingAll = true;
     try {
@@ -201,7 +190,7 @@ export async function renderSearch(container: HTMLElement) {
       const list2 = batch2.data?.objects || [];
       const list3 = batch3.data?.objects || [];
 
-      // guardamos la lista completa sin duplicados
+      // evitamos duplicados
       const seen = new Set<string>();
       allCountries = [...list1, ...list2, ...list3].filter((c) => {
         const code = c.codes?.alpha_3 || c.cca3 || c.names?.common;

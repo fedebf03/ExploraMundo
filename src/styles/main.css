@@ -1,7 +1,19 @@
-/* src/styles/main.css */
-/* Importador maestro */
-@import './00-variables.css';
-@import './01-reset.css';
-@import './02-base.css';
-@import './03-layout.css';
-@import './04-components.css';
+/* base */
+@import './base/variables.css';
+@import './base/reset.css';
+@import './base/typography.css';
+
+/* layout */
+@import './layout/grid.css';
+@import './layout/header.css';
+@import './layout/bottom-nav.css';
+@import './layout/footer.css';
+
+/* componentes */
+@import './components/buttons.css';
+@import './components/card.css';
+@import './components/search-form.css';
+
+/* vistas */
+@import './views/detail.css';
+@import './views/wishlist.css';

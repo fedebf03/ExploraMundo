@@ -3,6 +3,8 @@ import { renderSearch } from './views/search.view';
 import { renderCountryDetail } from './views/detail.view';
 import { renderWishlist } from './views/wishlist.view';
 
+
+
 // función para arrancar a escuchar los cambios de pantalla
 export function initRouter() {
   // escuchamos cuando cambia el hash en la url
@@ -25,23 +27,27 @@ function handleRouteChange() {
 
   // según la ruta cargamos la pantalla que corresponda
   switch (true) {
-    case hash === '#/':
+    case hash === '#/' || hash === '':
       renderHome(app);
       break;
 
-    case hash === '#/search':
+    case hash === '#/busqueda' || hash === '#/search':
       renderSearch(app);
       break;
 
-    case hash === '#/wishlist':
+    case hash === '#/deseos' || hash === '#/wishlist':
       renderWishlist(app);
+      break;
+
+    case hash.startsWith('#/detalle/'):
+      renderCountryDetail(app, hash.replace('#/detalle/', ''));
       break;
 
     case hash.startsWith('#/detail/'):
       renderCountryDetail(app, hash.replace('#/detail/', ''));
       break;
 
-    case hash === '#/history':
+    case hash === '#/historial' || hash === '#/history':
       app.innerHTML = `
         <section class="view">
           <h1>🕒 Historial de Visitas</h1>
@@ -50,7 +56,7 @@ function handleRouteChange() {
       `;
       break;
 
-    case hash === '#/contact':
+    case hash === '#/contacto' || hash === '#/contact':
       app.innerHTML = `
         <section class="view">
           <h1>📍 Contacto</h1>
@@ -58,6 +64,7 @@ function handleRouteChange() {
         </section>
       `;
       break;
+
 
     default:
       app.innerHTML = `

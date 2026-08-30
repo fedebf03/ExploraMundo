@@ -1,0 +1,121 @@
+.wishlist-empty {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.wishlist-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.wishlist-item__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.wishlist-item__flag-wrap {
+  width: 64px;
+  height: 44px;
+  border-radius: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+}
+
+.wishlist-item__flag {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wishlist-item__meta {
+  flex: 1;
+}
+
+.wishlist-item__code {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.wishlist-item__details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.wishlist-item__note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: 0.5rem 0.75rem;
+}
+
+
+.wishlist-form-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.wishlist-form-card.is-hidden {
+  display: none;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.form-message--error {
+  color: var(--danger-color);
+}
+
+.form-message--success {
+  color: #86efac;
+}

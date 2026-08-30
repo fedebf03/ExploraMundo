@@ -8,7 +8,8 @@ export async function renderHome(container: HTMLElement) {
       <div class="hero" style="text-align: center; margin-bottom: 2rem;">
         <h1>🌍 Explorá tu próximo destino</h1>
         <p>Encontrá información clave, cultura y datos útiles para planear tu viaje.</p>
-        <a href="#/search" class="btn btn-primary" style="margin-top: 1rem;">Buscar destinos</a>
+        <a href="#/busqueda" class="btn btn-primary" style="margin-top: 1rem;">Buscar destinos</a>
+
       </div>
 
       <h2>Destinos aleatorios</h2>
@@ -22,12 +23,11 @@ export async function renderHome(container: HTMLElement) {
   if (!gridContainer) return;
 
   try {
-    // traemos un lote aleatorio de la API y seleccionamos 8
-    const randomOffset = Math.floor(Math.random() * 150);
-    const response = await getCountries(20, randomOffset);
-    const rawCountries = response.data?.objects || [];
+    // traemos exactamente 8 paises aleatorios desde la API con un offset al azar
+    const randomOffset = Math.floor(Math.random() * 240);
+    const response = await getCountries(8, randomOffset);
+    const countries = response.data?.objects || [];
 
-    const countries = rawCountries.sort(() => 0.5 - Math.random()).slice(0, 8);
 
     if (countries.length === 0) {
       gridContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">No se encontraron países.</p>`;

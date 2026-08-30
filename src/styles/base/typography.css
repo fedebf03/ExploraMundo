@@ -1,19 +1,17 @@
-/* src/styles/02-base.css */
 body {
-   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
-  /* Soporte de safe area insets para dispositivos con notch */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Tipografía base */
 h1, h2, h3, h4 {
   line-height: 1.2;
   font-weight: 700;
   color: var(--text-primary);
+  margin-bottom: var(--space-xs);
 }
 
 h1 { font-size: 1.75rem; }
@@ -22,13 +20,5 @@ h3 { font-size: 1.15rem; }
 
 p {
   color: var(--text-secondary);
-}
-
-/* Objetivos táctiles mínimos para botones y campos */
-button,
-input,
-select,
-textarea {
-  min-height: var(--touch-target-min);
-  -webkit-tap-highlight-color: transparent;
+  margin-bottom: var(--space-md);
 }

@@ -1,16 +1,13 @@
 import type { ApiResponse, Country } from '../types/country';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.restcountries.com/countries/v5';
-const API_KEY = import.meta.env.VITE_API_KEY || 'rc_live_c29bbea559e244bb9b65536638be4af2';
-
+const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 // función genérica para pegarle a la api con el token
 async function fetchFromApi<T>(endpoint: string): Promise<T> {
-  // agregamos el token tanto por query param como por header para evitar problemas de CORS en navegador
   const separator = endpoint.includes('?') ? '&' : '?';
   const url = `${API_URL}${endpoint}${separator}api-key=${API_KEY}`;
-  
-  console.log('Consultando API:', url);
+
 
   const response = await fetch(url, {
     headers: {

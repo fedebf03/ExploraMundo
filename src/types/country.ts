@@ -39,7 +39,14 @@ export interface Country {
     iso639_3?: string;
     bcp47?: string;
   }> | Record<string, string>;
+  currencies?: Array<{
+    name?: string;
+    code?: string;
+    symbol?: string;
+  }>;
+  borders?: string[];
 }
+
 
 
 // estructura de la respuesta con paginación de la API
