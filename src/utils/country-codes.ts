@@ -27,6 +27,10 @@ const regionNames = typeof Intl !== 'undefined' && Intl.DisplayNames
   : null;
 
 // convierte un codigo (ej: BGD o BD) al nombre del pais en español
+const languageNames = typeof Intl !== 'undefined' && Intl.DisplayNames
+  ? new Intl.DisplayNames(['es'], { type: 'language' })
+  : null;
+
 export function getCountryNameFromCode(code: string): string {
   if (!code) return '';
   const upperCode = code.trim().toUpperCase();
@@ -45,3 +49,109 @@ export function getCountryNameFromCode(code: string): string {
 
   return upperCode;
 }
+
+// traduce un objeto de idioma o codigo a su nombre en espanol capitalizado (ej: sq -> Albanes)
+export function formatLanguageName(lang: any): string {
+  if (!lang) return '';
+  if (typeof lang === 'string') {
+    const code = lang.trim().toLowerCase();
+    try {
+      const translated = languageNames?.of(code);
+      if (translated) return translated.charAt(0).toUpperCase() + translated.slice(1);
+    } catch {
+      return lang;
+    }
+  }
+
+  const code = lang.iso639_1 || lang.bcp47 || lang.iso639_2b || lang.iso639_3;
+  if (code && languageNames) {
+    try {
+      const translated = languageNames.of(code.toLowerCase());
+      if (translated) return translated.charAt(0).toUpperCase() + translated.slice(1);
+    } catch {
+      // fallback
+    }
+  }
+
+  const fallback = lang.name || lang.native_name || '';
+  return fallback ? fallback.charAt(0).toUpperCase() + fallback.slice(1) : '';
+}
+
+const currencyNames = typeof Intl !== 'undefined' && Intl.DisplayNames
+  ? new Intl.DisplayNames(['es'], { type: 'currency' })
+  : null;
+
+// traduce una moneda a su nombre en espanol (ej: ARS -> Peso argentino ($), ALL -> Lek albanes)
+export function formatCurrencyName(curr: any): string {
+  if (!curr) return '';
+  const code = (typeof curr === 'string' ? curr : curr.code || '').trim().toUpperCase();
+  const symbol = typeof curr === 'object' && curr.symbol ? ` (${curr.symbol})` : '';
+
+  if (code && currencyNames) {
+    try {
+      const translated = currencyNames.of(code);
+      if (translated) {
+        return `${translated.charAt(0).toUpperCase() + translated.slice(1)}${symbol}`;
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  const fallbackName = typeof curr === 'object' && curr.name ? curr.name : code;
+  return `${fallbackName}${symbol}`;
+}
+
+const REGION_MAP: Record<string, string> = {
+  americas: 'América',
+  europe: 'Europa',
+  asia: 'Asia',
+  africa: 'África',
+  oceania: 'Oceanía',
+  antarctic: 'Antártida',
+  antarctica: 'Antártida'
+};
+
+const SUBREGION_MAP: Record<string, string> = {
+  'south america': 'América del Sur',
+  'north america': 'América del Norte',
+  'central america': 'América Central',
+  'caribbean': 'Caribe',
+  'western europe': 'Europa Occidental',
+  'eastern europe': 'Europa Oriental',
+  'northern europe': 'Europa del Norte',
+  'southern europe': 'Europa del Sur',
+  'central europe': 'Europa Central',
+  'southeast europe': 'Europa Sudoriental',
+  'eastern asia': 'Asia Oriental',
+  'southern asia': 'Asia del Sur',
+  'south-eastern asia': 'Sudeste Asiático',
+  'central asia': 'Asia Central',
+  'western asia': 'Asia Occidental',
+  'northern africa': 'África del Norte',
+  'western africa': 'África Occidental',
+  'eastern africa': 'África Oriental',
+  'middle africa': 'África Central',
+  'southern africa': 'África Austral',
+  'polynesia': 'Polinesia',
+  'melanesia': 'Melanesia',
+  'micronesia': 'Micronesia',
+  'australia and new zealand': 'Australia y Nueva Zelanda'
+};
+
+// traduce el continente a espanol (ej: Americas -> América)
+export function formatRegionName(region: string): string {
+  if (!region) return 'Desconocida';
+  const key = region.trim().toLowerCase();
+  return REGION_MAP[key] || region;
+}
+
+// traduce la subregion a espanol (ej: South America -> América del Sur)
+export function formatSubregionName(subregion: string): string {
+  if (!subregion) return '';
+  const key = subregion.trim().toLowerCase();
+  return SUBREGION_MAP[key] || subregion;
+}
+
+
+

@@ -23,10 +23,11 @@ export async function renderHome(container: HTMLElement) {
   if (!gridContainer) return;
 
   try {
-    // traemos exactamente 8 paises aleatorios desde la API con un offset al azar
-    const randomOffset = Math.floor(Math.random() * 240);
-    const response = await getCountries(8, randomOffset);
+    // traemos exactamente 12 paises aleatorios desde la API con un offset al azar
+    const randomOffset = Math.floor(Math.random() * 235);
+    const response = await getCountries(12, randomOffset);
     const countries = response.data?.objects || [];
+
 
 
     if (countries.length === 0) {

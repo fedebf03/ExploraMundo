@@ -1,7 +1,14 @@
 import { getCountryByCode } from '../services/api.service';
-import { getFlagUrl } from '../components/country-card';
+import { getFlagUrl, getCountryDisplayName } from '../components/country-card';
 import { addToWishlist, getWishlist } from '../services/storage.service';
-import { getCountryNameFromCode } from '../utils/country-codes';
+import {
+  getCountryNameFromCode,
+  formatLanguageName,
+  formatCurrencyName,
+  formatRegionName,
+  formatSubregionName
+} from '../utils/country-codes';
+
 
 export async function renderCountryDetail(container: HTMLElement, countryCode: string) {
   if (!countryCode) {
@@ -23,23 +30,49 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
   try {
     const country = await getCountryByCode(countryCode);
 
-    const name = country.names?.common || country.name?.common || 'País sin nombre';
-    const officialName = country.names?.official || country.name?.official || '';
+    const name = getCountryDisplayName(country);
+    const officialName = country.names?.translations?.spa?.official || country.translations?.spa?.official || country.names?.official || country.name?.official || '';
     const flagUrl = getFlagUrl(country);
+
     const capital = country.capitals?.[0]?.name || country.capital?.[0] || 'Sin capital';
-    const region = country.region || 'Desconocida';
-    const subregion = country.subregion || '';
+    const region = formatRegionName(country.region || '');
+    const subregion = formatSubregionName(country.subregion || '');
     const population = country.population ? Number(country.population).toLocaleString('es-AR') : '0';
     const existingCount = getWishlist().filter((item) => item.countryCode === countryCode).length;
 
-    // idiomas
-    const languages = Array.isArray(country.languages)
-      ? country.languages.map((l: any) => l.name || l.native_name).filter(Boolean).join(', ')
+
+    // idiomas traducidos al español (ej: "Albanés", "Español, Guaraní")
+    const languages = Array.isArray(country.languages) && country.languages.length > 0
+      ? country.languages.map((l: any) => formatLanguageName(l)).filter(Boolean).join(', ')
       : 'No disponible';
 
-    // monedas
-    const currencies = Array.isArray(country.currencies)
-      ? country.currencies.map((c: any) => `${c.name} (${c.symbol || c.code})`).join(', ')
+    // monedas traducidas al español (ej: "Lek albanés", "Peso argentino ($)")
+    const currencies = Array.isArray(country.currencies) && country.currencies.length > 0
+      ? country.currencies.map((c: any) => formatCurrencyName(c)).filter(Boolean).join(', ')
+      : 'No disponible';
+
+    // superficie total en km²
+    let areaStr = 'No disponible';
+    if (country.area) {
+      if (typeof country.area === 'object' && country.area.kilometers) {
+        areaStr = `${Number(country.area.kilometers).toLocaleString('es-AR')} km²`;
+      } else if (typeof country.area === 'number') {
+        areaStr = `${Number(country.area).toLocaleString('es-AR')} km²`;
+      }
+    }
+
+    // salida al mar
+    const coastStr = country.landlocked ? 'Sin salida al mar (Mediterráneo)' : 'Con costa marítima';
+
+    // sentido de circulacion
+    const drivingSide = country.cars?.driving_side === 'left'
+      ? 'Por la izquierda (volante a la derecha)'
+      : (country.cars?.driving_side === 'right' ? 'Por la derecha' : 'No disponible');
+
+    // enlace al sitio web oficial del gobierno
+    const officialSite = country.links?.official;
+    const siteLink = officialSite
+      ? `<a href="${officialSite}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); text-decoration: underline; word-break: break-all;">Visitar sitio oficial ↗</a>`
       : 'No disponible';
 
     // paises limitrofes con nombres en español
@@ -48,8 +81,6 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
           .map((b: string) => `<a href="#/detalle/${b}" class="badge-border">${getCountryNameFromCode(b)}</a>`)
           .join(' ')
       : '<span style="color: var(--text-secondary); font-size: 0.9rem;">No posee fronteras terrestres</span>';
-
-
 
     container.innerHTML = `
       <section class="view">
@@ -82,11 +113,17 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
                 <li><strong>Capital:</strong> <span>${capital}</span></li>
                 <li><strong>Continente:</strong> <span>${region}${subregion ? ` (${subregion})` : ''}</span></li>
                 <li><strong>Población:</strong> <span>${population} habitantes</span></li>
+                <li><strong>Superficie total:</strong> <span>${areaStr}</span></li>
+                <li><strong>Salida al mar:</strong> <span>${coastStr}</span></li>
+                <li><strong>Sentido de circulación:</strong> <span>${drivingSide}</span></li>
                 <li><strong>Idiomas oficiales:</strong> <span>${languages}</span></li>
                 <li><strong>Moneda oficial:</strong> <span>${currencies}</span></li>
                 <li><strong>Código ISO:</strong> <span>${countryCode}</span></li>
+                <li><strong>Sitio web oficial:</strong> <span>${siteLink}</span></li>
               </ul>
             </div>
+
+
 
             <div class="country-detail-section">
               <h3>Fronteras terrestres</h3>

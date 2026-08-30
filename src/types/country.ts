@@ -3,11 +3,14 @@ export interface Country {
   names?: {
     common: string;
     official: string;
+    translations?: Record<string, { common: string; official: string }>;
   };
+  translations?: Record<string, { common: string; official: string }>;
   name?: {
     common: string;
     official: string;
   };
+
   codes?: {
     alpha_2?: string;
     alpha_3?: string;
@@ -45,7 +48,26 @@ export interface Country {
     symbol?: string;
   }>;
   borders?: string[];
+  area?: {
+    kilometers?: number;
+    miles?: number;
+  } | number;
+  landlocked?: boolean;
+  economy?: {
+    gini_coefficient?: Record<string, number>;
+  };
+  cars?: {
+    driving_side?: 'right' | 'left' | string;
+    signs?: string[];
+  };
+  links?: {
+    official?: string;
+    wikipedia?: string;
+    google_maps?: string;
+    open_street_maps?: string;
+  };
 }
+
 
 
 

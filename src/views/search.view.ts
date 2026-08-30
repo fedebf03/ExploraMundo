@@ -1,5 +1,5 @@
 import { getCountries } from '../services/api.service';
-import { renderCountryCard } from '../components/country-card';
+import { renderCountryCard, getCountryDisplayName } from '../components/country-card';
 import type { Country } from '../types/country';
 
 let allCountries: Country[] = [];
@@ -7,6 +7,15 @@ let filteredCountries: Country[] = [];
 let currentPage = 1;
 const ITEMS_PER_PAGE = 12;
 let isFetchingAll = false;
+
+// normaliza texto eliminando acentos para busquedas tolerantes (ej: japon -> japón)
+function normalizeText(text: string): string {
+  return (text || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
 
 // dibuja las tarjetas en pantalla segun la pagina actual
 function renderResults() {
@@ -26,7 +35,6 @@ function renderResults() {
   const visible = filteredCountries.slice(0, currentPage * ITEMS_PER_PAGE);
   grid.innerHTML = visible.map(renderCountryCard).join('');
 
-
   if (count) {
     count.textContent = `Mostrando ${visible.length} de ${filteredCountries.length} destinos`;
   }
@@ -38,17 +46,29 @@ function renderResults() {
 
 // filtra y ordena los paises guardados
 function applyFilters() {
-  const q = (document.getElementById('search-input') as HTMLInputElement)?.value.trim().toLowerCase();
+  const qRaw = (document.getElementById('search-input') as HTMLInputElement)?.value || '';
+  const q = normalizeText(qRaw);
   const region = (document.getElementById('region-select') as HTMLSelectElement)?.value.toLowerCase();
   const lang = (document.getElementById('language-select') as HTMLSelectElement)?.value.toLowerCase();
   const sort = (document.getElementById('sort-select') as HTMLSelectElement)?.value;
 
   filteredCountries = allCountries.filter((c) => {
-    const name = (c.names?.common || c.name?.common || '').toLowerCase();
-    const capital = (c.capitals?.[0]?.name || c.capital?.[0] || '').toLowerCase();
+    const nameSpa = normalizeText(c.names?.translations?.spa?.common || c.translations?.spa?.common || '');
+    const officialSpa = normalizeText(c.names?.translations?.spa?.official || c.translations?.spa?.official || '');
+    const nameEng = normalizeText(c.names?.common || c.name?.common || '');
+    const capital = normalizeText(c.capitals?.[0]?.name || c.capital?.[0] || '');
+    const code3 = normalizeText(c.codes?.alpha_3 || c.cca3 || '');
+    const code2 = normalizeText(c.codes?.alpha_2 || '');
     const cRegion = (c.region || '').toLowerCase();
 
-    const matchText = !q || name.includes(q) || capital.includes(q);
+    const matchText = !q ||
+      nameSpa.includes(q) ||
+      officialSpa.includes(q) ||
+      nameEng.includes(q) ||
+      capital.includes(q) ||
+      code3 === q ||
+      code2 === q;
+
     const matchRegion = !region || cRegion === region;
 
     let matchLang = true;
@@ -79,18 +99,19 @@ function applyFilters() {
     return matchText && matchRegion && matchLang;
   });
 
-  // ordenamos por nombre o cantidad de poblacion
+  // ordenamos por nombre en español o cantidad de poblacion
   filteredCountries.sort((a, b) => {
-    const nameA = a.names?.common || a.name?.common || '';
-    const nameB = b.names?.common || b.name?.common || '';
+    const nameA = getCountryDisplayName(a);
+    const nameB = getCountryDisplayName(b);
     const popA = Number(a.population || 0);
     const popB = Number(b.population || 0);
 
-    if (sort === 'name-desc') return nameB.localeCompare(nameA);
+    if (sort === 'name-desc') return nameB.localeCompare(nameA, 'es');
     if (sort === 'pop-desc') return popB - popA;
     if (sort === 'pop-asc') return popA - popB;
-    return nameA.localeCompare(nameB);
+    return nameA.localeCompare(nameB, 'es');
   });
+
 
   currentPage = 1;
   renderResults();

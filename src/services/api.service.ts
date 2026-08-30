@@ -3,11 +3,9 @@ import type { ApiResponse, Country } from '../types/country';
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.restcountries.com/countries/v5';
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 
-// función genérica para pegarle a la api con el token
+// función genérica para pegarle a la API enviando el token por Header HTTP
 async function fetchFromApi<T>(endpoint: string): Promise<T> {
-  const separator = endpoint.includes('?') ? '&' : '?';
-  const url = `${API_URL}${endpoint}${separator}api-key=${API_KEY}`;
-
+  const url = `${API_URL}${endpoint}`;
 
   const response = await fetch(url, {
     headers: {
@@ -15,6 +13,7 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
       'Accept': 'application/json'
     }
   });
+
 
   // si la respuesta no es 200/OK leemos el mensaje exacto que devuelve el servidor
   if (!response.ok) {
