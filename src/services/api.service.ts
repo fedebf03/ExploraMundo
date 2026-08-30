@@ -51,21 +51,39 @@ export async function searchCountries(params: {
 }
 
 
-// busca un país puntual por su código de 3 letras (ej: "ARG")
+// busca un país puntual por su código ISO (ej: "ARG") o por nombre común si no tiene código ISO (ej: "Abkhazia")
 export async function getCountryByCode(code: string): Promise<Country> {
-  const res = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/codes.alpha_3/${code.toUpperCase()}`);
+  const cleanCode = decodeURIComponent(code).trim();
+  if (!cleanCode) throw new Error('Código no válido');
 
-  if (res && typeof res === 'object' && 'data' in res && res.data) {
-    const data = res.data as { objects?: Country[] } | Country;
-
-    if (data && typeof data === 'object' && 'objects' in data && Array.isArray(data.objects) && data.objects.length > 0) {
-      return data.objects[0];
-    }
-
-    if (data && typeof data === 'object') {
-      return data as Country;
+  // Si es un código ISO estándar de 2 o 3 letras
+  if (/^[A-Za-z]{2,3}$/.test(cleanCode)) {
+    try {
+      const res = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/codes.alpha_3/${cleanCode.toUpperCase()}`);
+      if (res && typeof res === 'object' && 'data' in res && res.data) {
+        const objects = (res.data as { objects?: Country[] }).objects;
+        if (Array.isArray(objects) && objects.length > 0) return objects[0];
+      }
+    } catch {
+      // si no está por alpha_3, intentamos por alpha_2
+      try {
+        const res2 = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/codes.alpha_2/${cleanCode.toUpperCase()}`);
+        if (res2 && typeof res2 === 'object' && 'data' in res2 && res2.data) {
+          const objects = (res2.data as { objects?: Country[] }).objects;
+          if (Array.isArray(objects) && objects.length > 0) return objects[0];
+        }
+      } catch {
+        // pasamos al fallback por nombre
+      }
     }
   }
 
-  throw new Error('No se encontró el país solicitado.');
+  // Fallback por nombre común (para territorios especiales o no reconocidos oficialmente)
+  const nameRes = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/names.common/${encodeURIComponent(cleanCode)}`);
+  if (nameRes && typeof nameRes === 'object' && 'data' in nameRes && nameRes.data) {
+    const objects = (nameRes.data as { objects?: Country[] }).objects;
+    if (Array.isArray(objects) && objects.length > 0) return objects[0];
+  }
+
+  throw new Error(`No se pudo encontrar el país "${code}" en la API`);
 }

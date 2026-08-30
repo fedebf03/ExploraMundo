@@ -1,4 +1,6 @@
 import { getWishlist, removeFromWishlist } from '../services/storage.service';
+import { renderEmptyState } from '../components/empty-state';
+
 
 function escapeHtml(value: string): string {
   return value
@@ -33,17 +35,21 @@ export function renderWishlist(container: HTMLElement) {
     <section class="view">
       <div class="section-header" style="margin-bottom: 1.5rem;">
         <h1>✈️ Lista de deseos</h1>
-        <p>Destinos guardados para planificar futuros viajes.</p>
+        <p>Países y lugares que guardaste para consultar más adelante.</p>
       </div>
 
+
       ${items.length === 0
-        ? `
-          <div class="wishlist-empty">
-            <p>No tenés destinos guardados en tu lista.</p>
-            <a href="#/busqueda" class="btn btn-primary" style="margin-top: 1rem;">Explorar destinos</a>
-          </div>
-        `
+        ? renderEmptyState({
+            title: 'Todavía no guardaste ningún destino',
+            description: 'Entrá al buscador para elegir países y agregarlos con tus notas personales.',
+            actionHref: '#/busqueda',
+            actionText: 'Buscar países'
+          })
         : `
+
+
+
           <div class="wishlist-grid">
             ${items
               .map(

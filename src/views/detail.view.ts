@@ -1,5 +1,7 @@
 import { getCountryByCode } from '../services/api.service';
 import { getFlagUrl, getCountryDisplayName } from '../components/country-card';
+import { renderLoader } from '../components/loader';
+import { renderEmptyState } from '../components/empty-state';
 import { addToWishlist, getWishlist } from '../services/storage.service';
 import {
   getCountryNameFromCode,
@@ -14,18 +16,26 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
   if (!countryCode) {
     container.innerHTML = `
       <section class="view">
-        <h1>País no encontrado</h1>
-        <a href="#/busqueda" class="btn btn-primary" style="margin-top: 1rem;">Volver al buscador</a>
+        ${renderEmptyState({
+          title: 'País no especificado',
+          description: 'No se indicó ningún código de país para consultar.',
+          actionHref: '#/busqueda',
+          actionText: 'Volver al buscador'
+        })}
       </section>
     `;
     return;
   }
 
+
+
   container.innerHTML = `
     <section class="view">
-      <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Cargando información del país...</p>
+      ${renderLoader('Cargando datos del país...')}
     </section>
   `;
+
+
 
   try {
     const country = await getCountryByCode(countryCode);
@@ -51,7 +61,7 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       ? country.currencies.map((c: any) => formatCurrencyName(c)).filter(Boolean).join(', ')
       : 'No disponible';
 
-    // superficie total en km²
+    // superficie total en km2
     let areaStr = 'No disponible';
     if (country.area) {
       if (typeof country.area === 'object' && country.area.kilometers) {
@@ -81,6 +91,9 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
           .map((b: string) => `<a href="#/detalle/${b}" class="badge-border">${getCountryNameFromCode(b)}</a>`)
           .join(' ')
       : '<span style="color: var(--text-secondary); font-size: 0.9rem;">No posee fronteras terrestres</span>';
+
+    // codigo ISO
+    const isoCodeStr = country.codes?.alpha_3 || country.codes?.alpha_2 || 'Sin código asignado';
 
     container.innerHTML = `
       <section class="view">
@@ -118,10 +131,11 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
                 <li><strong>Sentido de circulación:</strong> <span>${drivingSide}</span></li>
                 <li><strong>Idiomas oficiales:</strong> <span>${languages}</span></li>
                 <li><strong>Moneda oficial:</strong> <span>${currencies}</span></li>
-                <li><strong>Código ISO:</strong> <span>${countryCode}</span></li>
+                <li><strong>Código ISO:</strong> <span>${isoCodeStr}</span></li>
                 <li><strong>Sitio web oficial:</strong> <span>${siteLink}</span></li>
               </ul>
             </div>
+
 
 
 
@@ -240,10 +254,15 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
   } catch (error) {
     container.innerHTML = `
       <section class="view">
-        <h1>Hubo un problema</h1>
-        <p style="color: var(--danger-color); margin-top: 0.5rem;">${error instanceof Error ? error.message : 'No se pudo cargar el país.'}</p>
-        <a href="#/busqueda" class="btn btn-primary" style="margin-top: 1rem;">Volver al buscador</a>
+        ${renderEmptyState({
+          title: 'No pudimos encontrar este destino',
+          description: 'El país que buscás no existe o no se encuentra disponible en este momento.',
+          actionHref: '#/busqueda',
+          actionText: 'Volver al buscador'
+        })}
       </section>
     `;
   }
 }
+
+

@@ -32,12 +32,13 @@ export function renderCountryCard(country: Country): string {
   const flagUrl = getFlagUrl(country);
   const capital = country.capitals?.[0]?.name || country.capital?.[0] || 'Sin capital';
   const population = country.population ? Number(country.population).toLocaleString('es-AR') : '0';
-  const code = country.codes?.alpha_3 || country.cca3 || country.codes?.alpha_2 || '';
+  const code = country.codes?.alpha_3 || country.cca3 || country.codes?.alpha_2 || country.names?.common || country.name?.common || '';
   const region = formatRegionName(country.region || '');
 
   return `
     <article class="card">
-      <a href="#/detalle/${code}" class="card__link">
+      <a href="#/detalle/${encodeURIComponent(code)}" class="card__link">
+
         <div class="card__flag-wrapper">
           <img 
             src="${flagUrl}" 

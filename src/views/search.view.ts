@@ -1,5 +1,7 @@
 import { getCountries } from '../services/api.service';
 import { renderCountryCard, getCountryDisplayName } from '../components/country-card';
+import { renderLoader } from '../components/loader';
+import { renderEmptyState } from '../components/empty-state';
 import type { Country } from '../types/country';
 
 let allCountries: Country[] = [];
@@ -25,11 +27,16 @@ function renderResults() {
   if (!grid) return;
 
   if (filteredCountries.length === 0) {
-    grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">No se encontraron países con esos filtros.</p>`;
+    grid.innerHTML = renderEmptyState({
+      icon: '🔍',
+      title: 'Sin resultados',
+      description: 'No se encontraron países que coincidan con los filtros seleccionados.'
+    });
     if (loadMoreBtn) loadMoreBtn.style.display = 'none';
     if (count) count.textContent = '0 resultados';
     return;
   }
+
 
   // paginamos de a 12 resultados para completar filas de 1, 2, 3 y 4 columnas
   const visible = filteredCountries.slice(0, currentPage * ITEMS_PER_PAGE);
@@ -124,6 +131,8 @@ export async function renderSearch(container: HTMLElement) {
         <h1>🔍 Buscá tu próximo destino</h1>
       </div>
 
+
+
       <form id="search-form" class="search-form" onsubmit="event.preventDefault();">
         <div class="form-group">
           <label for="search-input" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Nombre o capital</label>
@@ -174,8 +183,10 @@ export async function renderSearch(container: HTMLElement) {
       </div>
 
       <div id="search-results" class="countries-grid">
-        <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">Cargando países desde la API...</p>
+        ${renderLoader('Cargando países...')}
       </div>
+
+
 
       <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem;">
         <button id="load-more-btn" class="btn btn-secondary" style="display: none; padding: 0.75rem 2rem;">
@@ -224,7 +235,12 @@ export async function renderSearch(container: HTMLElement) {
     } catch (error) {
       const grid = document.getElementById('search-results');
       if (grid) {
-        grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--danger-color);">Error al conectar con la API.</p>`;
+        grid.innerHTML = renderEmptyState({
+          title: 'No se pudieron cargar los países',
+          description: 'Hubo un error de conexión al intentar obtener los países. Verificá tu conexión a internet o probá recargar la página.',
+          actionHref: '#/busqueda',
+          actionText: 'Reintentar'
+        });
       }
     } finally {
       isFetchingAll = false;
@@ -233,3 +249,4 @@ export async function renderSearch(container: HTMLElement) {
     applyFilters();
   }
 }
+

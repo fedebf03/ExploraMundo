@@ -13,6 +13,8 @@
 @import './components/buttons.css';
 @import './components/card.css';
 @import './components/search-form.css';
+@import './components/loader.css';
+@import './components/empty-state.css';
 
 /* vistas */
 @import './views/detail.css';
