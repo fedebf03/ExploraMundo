@@ -6,9 +6,10 @@ export function renderHeader(): string {
       <span class="logo-text">Explora<span class="logo-accent">Mundo</span></span>
     </a>
 
-    <nav class="header__nav" aria-label="Navegación principal de escritorio">
+    <nav class="header__nav">
       <a href="#/" class="nav-item" data-route="/">Inicio</a>
       <a href="#/busqueda" class="nav-item" data-route="/busqueda">Buscar</a>
+
       <a href="#/deseos" class="nav-item" data-route="/deseos">Deseos</a>
       <a href="#/historial" class="nav-item" data-route="/historial">Historial</a>
       <a href="#/contacto" class="nav-item" data-route="/contacto">Contacto</a>

@@ -184,8 +184,9 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
                   <button type="button" class="btn btn-secondary" id="cancel-wishlist-form">Cancelar</button>
                 </div>
 
-                <p class="form-message" id="wishlist-form-message" aria-live="polite" style="margin-top: 0.5rem; font-size: 0.85rem;"></p>
+                <p class="form-message" id="wishlist-form-message" style="margin-top: 0.5rem; font-size: 0.85rem;"></p>
               </form>
+
             </div>
           </div>
         </div>

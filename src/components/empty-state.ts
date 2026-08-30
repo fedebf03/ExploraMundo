@@ -16,11 +16,12 @@ export function renderEmptyState(options: EmptyStateOptions): string {
     : '';
 
   return `
-    <div class="empty-state" role="status">
+    <div class="empty-state">
       ${iconHtml}
       <h3 class="empty-state__title">${options.title}</h3>
       ${descHtml}
       ${actionHtml}
     </div>
   `;
+
 }
