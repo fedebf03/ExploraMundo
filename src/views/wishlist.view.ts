@@ -1,5 +1,6 @@
 import { getWishlist, removeFromWishlist } from '../services/storage.service';
 import { renderEmptyState } from '../components/empty-state';
+import { openConfirmationModal } from '../components/modal';
 
 
 function escapeHtml(value: string): string {
@@ -54,15 +55,13 @@ export function renderWishlist(container: HTMLElement) {
             ${items
               .map(
                 (item) => `
-                  <article class="wishlist-item" data-id="${item.id}">
+                  <article class="wishlist-item" data-id="${item.id}" data-country-code="${escapeHtml(item.countryCode)}">
                     <div class="wishlist-item__top">
                       <div class="wishlist-item__flag-wrap">
                         <img src="${escapeHtml(item.flag)}" alt="Bandera de ${escapeHtml(item.countryName)}" class="wishlist-item__flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
                       </div>
                       <div class="wishlist-item__meta">
-                        <a href="#/detalle/${escapeHtml(item.countryCode)}" style="color: inherit; text-decoration: none;">
-                          <h3 style="display: inline;">${escapeHtml(item.countryName)}</h3>
-                        </a>
+                        <h3>${escapeHtml(item.countryName)}</h3>
                         <span class="wishlist-item__code">${escapeHtml(item.countryCode)}</span>
                       </div>
                     </div>
@@ -87,14 +86,43 @@ export function renderWishlist(container: HTMLElement) {
     </section>
   `;
 
+  const wishlistItems = document.querySelectorAll('.wishlist-item');
+  wishlistItems.forEach((item) => {
+    item.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('.wishlist-delete')) return;
+
+      const countryCode = item.getAttribute('data-country-code');
+      if (countryCode) {
+        window.location.hash = `#/detalle/${countryCode}`;
+      }
+    });
+  });
+
   const deleteButtons = document.querySelectorAll('.wishlist-delete');
   deleteButtons.forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+
       const id = button.getAttribute('data-id');
       if (!id) return;
 
-      removeFromWishlist(id);
-      renderWishlist(container);
+      const item = items.find((entry) => entry.id === id);
+      const countryName = item?.countryName || 'este destino';
+
+      openConfirmationModal(
+        {
+          title: 'Eliminar de la lista',
+          message: `¿Deseás quitar ${countryName} de tus deseos?`,
+          confirmText: 'Eliminar',
+          cancelText: 'Cancelar',
+          variant: 'danger',
+        },
+        () => {
+          removeFromWishlist(id);
+          renderWishlist(container);
+        }
+      );
     });
   });
 }

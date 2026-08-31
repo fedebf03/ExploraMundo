@@ -2,6 +2,8 @@ import { renderHome } from './views/home.view';
 import { renderSearch } from './views/search.view';
 import { renderCountryDetail } from './views/detail.view';
 import { renderWishlist } from './views/wishlist.view';
+import { renderHistory } from './views/history.view';
+import { renderContact } from './views/contact.view';
 
 
 
@@ -48,21 +50,11 @@ function handleRouteChange() {
       break;
 
     case hash === '#/historial' || hash === '#/history':
-      app.innerHTML = `
-        <section class="view">
-          <h1>🕒 Historial de Visitas</h1>
-          <p>Países que estuviste observando.</p>
-        </section>
-      `;
+      renderHistory(app);
       break;
 
     case hash === '#/contacto' || hash === '#/contact':
-      app.innerHTML = `
-        <section class="view">
-          <h1>📍 Contacto</h1>
-          <p>Información del lugar.</p>
-        </section>
-      `;
+      renderContact(app);
       break;
 
 

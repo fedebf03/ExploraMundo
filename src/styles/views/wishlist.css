@@ -32,6 +32,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.wishlist-item:hover {
+  border-color: rgba(96, 165, 250, 0.7);
 }
 
 .wishlist-item__top {

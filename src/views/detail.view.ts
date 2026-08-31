@@ -2,7 +2,8 @@ import { getCountryByCode } from '../services/api.service';
 import { getFlagUrl, getCountryDisplayName } from '../components/country-card';
 import { renderLoader } from '../components/loader';
 import { renderEmptyState } from '../components/empty-state';
-import { addToWishlist, getWishlist } from '../services/storage.service';
+import { addToWishlist, getWishlist, addToHistory, removeFromWishlist } from '../services/storage.service';
+import { openConfirmationModal } from '../components/modal';
 import {
   getCountryNameFromCode,
   formatLanguageName,
@@ -44,12 +45,22 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     const officialName = country.names?.translations?.spa?.official || country.translations?.spa?.official || country.names?.official || country.name?.official || '';
     const flagUrl = getFlagUrl(country);
 
+    addToHistory({
+      countryCode,
+      countryName: name,
+      flag: flagUrl,
+      visitedAt: new Date().toISOString(),
+    });
+
     const capital = country.capitals?.[0]?.name || country.capital?.[0] || 'Sin capital';
     const region = formatRegionName(country.region || '');
     const subregion = formatSubregionName(country.subregion || '');
     const population = country.population ? Number(country.population).toLocaleString('es-AR') : '0';
-    const existingCount = getWishlist().filter((item) => item.countryCode === countryCode).length;
-
+    const existingWishlistItems = getWishlist().filter((item) => item.countryCode === countryCode);
+    const existingCount = existingWishlistItems.length;
+    const isSaved = existingCount > 0;
+    const wishlistButtonText = isSaved ? 'Eliminar de la lista' : 'Agregar a lista de deseos';
+    const wishlistButtonClass = isSaved ? 'btn btn-danger' : 'btn btn-primary';
 
     // idiomas traducidos al español (ej: "Albanés", "Español, Guaraní")
     const languages = Array.isArray(country.languages) && country.languages.length > 0
@@ -106,11 +117,11 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
               <img src="${flagUrl}" alt="Bandera de ${name}" class="country-detail-flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
             </div>
 
-            <button id="show-wishlist-form" class="btn btn-primary" type="button" style="width: 100%; margin-top: 1rem;">
-              Agregar a lista de deseos
+            <button id="show-wishlist-form" class="${wishlistButtonClass}" type="button" style="width: 100%; margin-top: 1rem;">
+              ${wishlistButtonText}
             </button>
 
-            ${existingCount > 0 ? `<p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Guardado en deseos (${existingCount})</p>` : ''}
+            ${isSaved ? `<p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Guardado en deseos (${existingCount})</p>` : '<p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; opacity: 0.9;">Todavía no está en tu lista</p>'}
           </div>
 
           <!-- columna principal con los datos del pais -->
@@ -200,13 +211,39 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     const message = document.getElementById('wishlist-form-message');
 
     showFormButton?.addEventListener('click', () => {
-      formWrapper?.classList.toggle('is-hidden');
+      if (!formWrapper) return;
+
+      if (isSaved) {
+        const savedItem = existingWishlistItems[0];
+        openConfirmationModal(
+          {
+            title: 'Eliminar de la lista',
+            message: `¿Querés quitar ${name} de tus deseos?`,
+            confirmText: 'Eliminar',
+            cancelText: 'Cancelar',
+            variant: 'danger',
+          },
+          () => {
+            if (savedItem) {
+              removeFromWishlist(savedItem.id);
+            }
+            renderCountryDetail(container, countryCode);
+          }
+        );
+        return;
+      }
+
+      formWrapper.classList.remove('is-hidden');
+      formWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (message) message.textContent = '';
+      message?.classList.remove('form-message--error', 'form-message--success');
     });
 
     cancelButton?.addEventListener('click', () => {
       formWrapper?.classList.add('is-hidden');
       form?.reset();
       if (message) message.textContent = '';
+      message?.classList.remove('form-message--error', 'form-message--success');
     });
 
     form?.addEventListener('submit', (event) => {
@@ -233,6 +270,35 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
         return;
       }
 
+      const alreadyExists = getWishlist().some((item) => item.countryCode === countryCode);
+
+      if (alreadyExists) {
+        openConfirmationModal(
+          {
+            title: 'País ya guardado',
+            message: `Ya agregaste ${name} a tu lista de deseos. ¿Querés actualizar su información?`,
+            confirmText: 'Actualizar',
+            cancelText: 'No',
+            variant: 'primary',
+          },
+          () => {
+            addToWishlist({
+              countryCode,
+              countryName: name,
+              flag: flagUrl,
+              priority,
+              category,
+              note,
+            });
+
+            form.reset();
+            formWrapper?.classList.add('is-hidden');
+            renderCountryDetail(container, countryCode);
+          }
+        );
+        return;
+      }
+
       addToWishlist({
         countryCode,
         countryName: name,
@@ -244,6 +310,7 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
 
       form.reset();
       formWrapper?.classList.add('is-hidden');
+      renderCountryDetail(container, countryCode);
 
       if (message) {
         message.textContent = 'Destino guardado en la lista de deseos.';
