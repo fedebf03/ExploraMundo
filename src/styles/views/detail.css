@@ -109,3 +109,29 @@
   border-color: var(--border-focus);
   background-color: var(--bg-surface-hover);
 }
+
+.wishlist-form-card {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  z-index: 110;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 22px 50px rgba(2, 6, 23, 0.55);
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.wishlist-form-card.is-hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .wishlist-form-card {
+    left: 50%;
+    right: auto;
+    width: min(420px, calc(100vw - 2rem));
+    transform: translateX(-50%);
+  }
+}

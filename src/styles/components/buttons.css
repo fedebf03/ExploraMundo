@@ -83,33 +83,21 @@
   opacity: 0.9;
 }
 
-.btn-success {
-  background: #16a34a;
-  color: #ffffff;
-  border: 1px solid rgba(22, 163, 74, 0.5);
-}
-
-.btn-success:hover {
-  background: #dc2626;
-  border-color: rgba(220, 38, 38, 0.5);
-  opacity: 1;
-}
-
-.btn-danger {
-  background: #dc2626;
-  color: #ffffff;
-  border: 1px solid rgba(220, 38, 38, 0.5);
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
-  opacity: 1;
-}
-
 .btn-secondary {
   background: var(--bg-surface-hover);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+}
+
+.btn-danger {
+  background: #b91c1c;
+  color: white;
+  border: 1px solid rgba(248, 113, 113, 0.8);
+}
+
+.btn-success {
+  background: #16a34a;
+  color: white;
 }
 
 button,

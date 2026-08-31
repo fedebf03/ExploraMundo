@@ -4,7 +4,6 @@ import { renderFooter } from './components/footer';
 import { renderNavbar } from './components/navbar';
 import { initRouter } from './router';
 
-// inicializamos los componentes modulares del layout
 const headerEl = document.getElementById('header');
 const footerEl = document.getElementById('footer');
 const bottomNavEl = document.getElementById('bottom-nav');
@@ -17,22 +16,24 @@ const scrollTopButton = document.createElement('button');
 scrollTopButton.type = 'button';
 scrollTopButton.className = 'scroll-top-btn';
 scrollTopButton.setAttribute('aria-label', 'Volver arriba');
-scrollTopButton.innerHTML = '↑';
+scrollTopButton.textContent = '↑';
+
 document.body.appendChild(scrollTopButton);
 
-const updateScrollTopButton = () => {
-  const shouldShow = window.scrollY > 220;
-  scrollTopButton.classList.toggle('is-visible', shouldShow);
+const toggleScrollTopButton = () => {
+  if (!scrollTopButton) return;
+  if (window.scrollY > 30) {
+    scrollTopButton.classList.add('is-visible');
+  } else {
+    scrollTopButton.classList.remove('is-visible');
+  }
 };
 
-updateScrollTopButton();
-window.addEventListener('scroll', updateScrollTopButton, { passive: true });
+window.addEventListener('scroll', toggleScrollTopButton, { passive: true });
+toggleScrollTopButton();
+
 scrollTopButton.addEventListener('click', () => {
-  window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: 'smooth'
-  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 initRouter();
