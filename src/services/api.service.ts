@@ -1,24 +1,33 @@
 import type { ApiResponse, Country } from '../types/country';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.restcountries.com/countries/v5';
-const API_KEY = import.meta.env.VITE_API_KEY || '';
+const API_KEY = (import.meta.env.VITE_API_KEY || '').trim();
 
 // función genérica para pegarle a la API enviando el token por Header HTTP
 async function fetchFromApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint}`;
+  const headers: Record<string, string> = {
+    'Accept': 'application/json'
+  };
 
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${API_KEY}`,
-      'Accept': 'application/json'
-    }
-  });
+  if (API_KEY) {
+    headers.Authorization = `Bearer ${API_KEY}`;
+  }
 
+  const response = await fetch(url, { headers });
 
-  // si la respuesta no es 200/OK leemos el mensaje exacto que devuelve el servidor
   if (!response.ok) {
     const errorBody = await response.text().catch(() => '');
     console.error('Detalle del error de la API:', response.status, errorBody);
+
+    if (response.status === 401 || response.status === 403) {
+      if (!API_KEY) {
+        throw new Error('Falta VITE_API_KEY en el archivo .env. La API requiere una clave válida para autorizar la petición.');
+      }
+
+      throw new Error('La clave de la API no es válida o expiró. Verificá VITE_API_KEY.');
+    }
+
     throw new Error(`Error ${response.status} (${response.statusText}): ${errorBody || 'Acceso denegado'}`);
   }
 

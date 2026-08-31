@@ -7,9 +7,20 @@
 #app {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: auto;
   padding-top: var(--space-lg);
-  padding-bottom: 72px;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-inline: 0.75rem;
+  }
+
+  #app {
+    padding-top: 1rem;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
 }
 
 .countries-grid {

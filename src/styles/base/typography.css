@@ -22,3 +22,13 @@ p {
   color: var(--text-secondary);
   margin-bottom: var(--space-md);
 }
+
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+
+  h1 { font-size: 1.45rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1.05rem; }
+}
