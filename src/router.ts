@@ -2,11 +2,24 @@ import { renderHome } from './views/home.view';
 import { renderSearch } from './views/search.view';
 import { renderCountryDetail } from './views/detail.view';
 import { renderWishlist } from './views/wishlist.view';
+import { renderHistory } from './views/history.view';
 
 
+
+const ROUTER_INITIALIZED_KEY = '__exploramundo_router_initialized__';
 
 // función para arrancar a escuchar los cambios de pantalla
 export function initRouter() {
+  const globalWindow = window as typeof window & {
+    [ROUTER_INITIALIZED_KEY]?: boolean;
+  };
+
+  if (globalWindow[ROUTER_INITIALIZED_KEY]) {
+    return;
+  }
+
+  globalWindow[ROUTER_INITIALIZED_KEY] = true;
+
   // escuchamos cuando cambia el hash en la url
   window.addEventListener('hashchange', handleRouteChange);
 
@@ -48,12 +61,7 @@ function handleRouteChange() {
       break;
 
     case hash === '#/historial' || hash === '#/history':
-      app.innerHTML = `
-        <section class="view">
-          <h1>🕒 Historial de Visitas</h1>
-          <p>Países que estuviste observando.</p>
-        </section>
-      `;
+      renderHistory(app);
       break;
 
     case hash === '#/contacto' || hash === '#/contact':

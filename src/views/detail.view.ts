@@ -2,7 +2,14 @@ import { getCountryByCode } from '../services/api.service';
 import { getFlagUrl, getCountryDisplayName } from '../components/country-card';
 import { renderLoader } from '../components/loader';
 import { renderEmptyState } from '../components/empty-state';
-import { addToWishlist, getWishlist } from '../services/storage.service';
+import { renderWishlistFormModal, renderDeleteConfirmationModal } from '../components/wishlist-modal';
+import {
+  addToHistory,
+  addToWishlist,
+  getWishlist,
+  isCountryInWishlist,
+  removeFromWishlistByCountryCode,
+} from '../services/storage.service';
 import {
   getCountryNameFromCode,
   formatLanguageName,
@@ -44,10 +51,17 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     const officialName = country.names?.translations?.spa?.official || country.translations?.spa?.official || country.names?.official || country.name?.official || '';
     const flagUrl = getFlagUrl(country);
 
+    addToHistory({
+      countryCode,
+      countryName: name,
+      flag: flagUrl,
+    });
+
     const capital = country.capitals?.[0]?.name || country.capital?.[0] || 'Sin capital';
     const region = formatRegionName(country.region || '');
     const subregion = formatSubregionName(country.subregion || '');
     const population = country.population ? Number(country.population).toLocaleString('es-AR') : '0';
+    const isSavedInWishlist = isCountryInWishlist(countryCode);
     const existingCount = getWishlist().filter((item) => item.countryCode === countryCode).length;
 
 
@@ -106,8 +120,17 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
               <img src="${flagUrl}" alt="Bandera de ${name}" class="country-detail-flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
             </div>
 
-            <button id="show-wishlist-form" class="btn btn-primary" type="button" style="width: 100%; margin-top: 1rem;">
-              Agregar a lista de deseos
+            <button
+              id="wishlist-toggle-button"
+              class="btn ${isSavedInWishlist ? 'btn-success' : 'btn-primary'}"
+              type="button"
+              data-country-code="${countryCode}"
+              data-in-wishlist="${String(isSavedInWishlist)}"
+              aria-pressed="${String(isSavedInWishlist)}"
+              style="width: 100%; margin-top: 1rem;"
+              title="${isSavedInWishlist ? 'Eliminar de la lista de deseos' : 'Agregar a lista de deseos'}"
+            >
+              ${isSavedInWishlist ? 'En lista de deseos' : 'Agregar a lista de deseos'}
             </button>
 
             ${existingCount > 0 ? `<p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Guardado en deseos (${existingCount})</p>` : ''}
@@ -136,77 +159,103 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
               </ul>
             </div>
 
-
-
-
             <div class="country-detail-section">
               <h3>Fronteras terrestres</h3>
               <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
                 ${borders}
               </div>
             </div>
-
-            <!-- formulario de lista de deseos (RF5) -->
-            <div class="wishlist-form-card is-hidden" id="wishlist-form-wrapper">
-              <h3 style="font-size: 1rem; margin-bottom: 1rem;">Agregar a lista de deseos</h3>
-              
-              <form id="wishlist-form" style="display: flex; flex-direction: column; gap: 1rem;" novalidate>
-                <div class="form-group">
-                  <label for="wishlist-priority" style="font-size: 0.85rem; font-weight: 600;">Prioridad</label>
-                  <select id="wishlist-priority" class="form-select" name="priority" required>
-                    <option value="1">1 - Muy baja</option>
-                    <option value="2">2 - Baja</option>
-                    <option value="3" selected>3 - Media</option>
-                    <option value="4">4 - Alta</option>
-                    <option value="5">5 - Muy alta</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="wishlist-category" style="font-size: 0.85rem; font-weight: 600;">Categoría</label>
-                  <select id="wishlist-category" class="form-select" name="category" required>
-                    <option value="Vacaciones">Vacaciones</option>
-                    <option value="Turismo">Turismo</option>
-                    <option value="Aventura">Aventura</option>
-                    <option value="Cultura">Cultura</option>
-                    <option value="Trabajo">Trabajo</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="wishlist-note" style="font-size: 0.85rem; font-weight: 600;">Nota (opcional)</label>
-                  <textarea id="wishlist-note" class="form-textarea" name="note" maxlength="180" rows="3" placeholder="Observaciones o notas sobre este destino..."></textarea>
-                </div>
-
-
-                <div style="display: flex; gap: 0.75rem;">
-                  <button type="submit" class="btn btn-primary">Guardar</button>
-                  <button type="button" class="btn btn-secondary" id="cancel-wishlist-form">Cancelar</button>
-                </div>
-
-                <p class="form-message" id="wishlist-form-message" style="margin-top: 0.5rem; font-size: 0.85rem;"></p>
-              </form>
-
-            </div>
           </div>
         </div>
       </section>
+
+      ${renderWishlistFormModal()}
+      ${renderDeleteConfirmationModal()}
     `;
 
-    const formWrapper = document.getElementById('wishlist-form-wrapper');
-    const showFormButton = document.getElementById('show-wishlist-form');
+    const formModal = document.getElementById('wishlist-modal-backdrop');
+    const deleteModal = document.getElementById('wishlist-delete-modal');
+    const wishlistButton = document.getElementById('wishlist-toggle-button') as HTMLButtonElement | null;
     const cancelButton = document.getElementById('cancel-wishlist-form');
+    const closeModalButton = document.getElementById('close-wishlist-modal');
     const form = document.getElementById('wishlist-form') as HTMLFormElement | null;
     const message = document.getElementById('wishlist-form-message');
+    const closeDeleteModalButton = document.getElementById('close-delete-modal');
+    const cancelDeleteButton = document.getElementById('cancel-delete-wishlist');
+    const confirmDeleteButton = document.getElementById('confirm-delete-wishlist');
 
-    showFormButton?.addEventListener('click', () => {
-      formWrapper?.classList.toggle('is-hidden');
+    const syncWishlistButtonState = (saved: boolean, hovered = false) => {
+      if (!wishlistButton) return;
+
+      const nextText = saved
+        ? (hovered ? 'Eliminar de la lista de deseos' : 'En lista de deseos')
+        : 'Agregar a lista de deseos';
+
+      wishlistButton.classList.toggle('btn-success', saved && !hovered);
+      wishlistButton.classList.toggle('btn-danger', saved && hovered);
+      wishlistButton.classList.toggle('btn-primary', !saved);
+      wishlistButton.dataset.inWishlist = String(saved);
+      wishlistButton.setAttribute('aria-pressed', String(saved));
+      wishlistButton.title = saved ? 'Eliminar de la lista de deseos' : 'Agregar a lista de deseos';
+      wishlistButton.textContent = nextText;
+    };
+
+    const closeFormModal = () => {
+      formModal?.classList.add('is-hidden');
+      formModal?.setAttribute('aria-hidden', 'true');
+      form?.reset();
+      if (message) {
+        message.textContent = '';
+        message.classList.remove('form-message--error');
+        message.classList.remove('form-message--success');
+      }
+    };
+
+    const openFormModal = () => {
+      formModal?.classList.remove('is-hidden');
+      formModal?.setAttribute('aria-hidden', 'false');
+    };
+
+    const closeDeleteModal = () => {
+      deleteModal?.classList.add('is-hidden');
+      deleteModal?.setAttribute('aria-hidden', 'true');
+    };
+
+    const openDeleteModal = () => {
+      deleteModal?.classList.remove('is-hidden');
+      deleteModal?.setAttribute('aria-hidden', 'false');
+    };
+
+    wishlistButton?.addEventListener('mouseenter', () => {
+      if (isCountryInWishlist(countryCode)) {
+        syncWishlistButtonState(true, true);
+      }
     });
 
-    cancelButton?.addEventListener('click', () => {
-      formWrapper?.classList.add('is-hidden');
-      form?.reset();
-      if (message) message.textContent = '';
+    wishlistButton?.addEventListener('mouseleave', () => {
+      if (isCountryInWishlist(countryCode)) {
+        syncWishlistButtonState(true, false);
+      }
+    });
+
+    wishlistButton?.addEventListener('click', () => {
+      if (isCountryInWishlist(countryCode)) {
+        openDeleteModal();
+        return;
+      }
+
+      openFormModal();
+    });
+
+    cancelButton?.addEventListener('click', closeFormModal);
+    closeModalButton?.addEventListener('click', closeFormModal);
+    closeDeleteModalButton?.addEventListener('click', closeDeleteModal);
+    cancelDeleteButton?.addEventListener('click', closeDeleteModal);
+
+    confirmDeleteButton?.addEventListener('click', () => {
+      removeFromWishlistByCountryCode(countryCode);
+      closeDeleteModal();
+      renderCountryDetail(container, countryCode);
     });
 
     form?.addEventListener('submit', (event) => {
@@ -242,14 +291,9 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
         note,
       });
 
-      form.reset();
-      formWrapper?.classList.add('is-hidden');
-
-      if (message) {
-        message.textContent = 'Destino guardado en la lista de deseos.';
-        message.classList.remove('form-message--error');
-        message.classList.add('form-message--success');
-      }
+      closeFormModal();
+      syncWishlistButtonState(true, false);
+      renderCountryDetail(container, countryCode);
     });
 
   } catch (error) {

@@ -3,7 +3,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: 60px;
   background: var(--bg-surface);
   border-top: 1px solid var(--border-color);
   display: flex;
@@ -20,7 +20,7 @@
   gap: 2px;
   flex: 1;
   color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   text-decoration: none;
   transition: color var(--transition-fast), background-color var(--transition-fast);
 }
@@ -30,8 +30,8 @@
 }
 
 .nav-item svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 @media (min-width: 768px) {
