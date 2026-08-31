@@ -4,6 +4,7 @@ import { renderLoader } from '../components/loader';
 import { renderEmptyState } from '../components/empty-state';
 import { addToHistory, addToWishlist, getWishlist, removeFromWishlist } from '../services/storage.service';
 import { openConfirmationModal } from '../components/modal';
+import { renderWishlistFormModal, renderDeleteConfirmationModal } from '../components/wishlist-modal';
 import {
   getCountryNameFromCode,
   formatLanguageName,
@@ -143,51 +144,133 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
           </div>
         </div>
       </section>
+
+      ${renderWishlistFormModal()}
+      ${renderDeleteConfirmationModal()}
     `;
 
+    const formModal = document.getElementById('wishlist-modal-backdrop');
+    const deleteModal = document.getElementById('wishlist-delete-modal');
     const wishlistButton = document.getElementById('wishlist-toggle-button') as HTMLButtonElement | null;
+    const form = document.getElementById('wishlist-form') as HTMLFormElement | null;
+    const message = document.getElementById('wishlist-form-message');
+    const cancelButton = document.getElementById('cancel-wishlist-form');
+    const closeModalButton = document.getElementById('close-wishlist-modal');
+    const closeDeleteModalButton = document.getElementById('close-delete-modal');
+    const cancelDeleteButton = document.getElementById('cancel-delete-wishlist');
+    const confirmDeleteButton = document.getElementById('confirm-delete-wishlist');
+
+    const closeFormModal = () => {
+      formModal?.classList.add('is-hidden');
+      formModal?.setAttribute('aria-hidden', 'true');
+      form?.reset();
+      if (message) {
+        message.textContent = '';
+        message.classList.remove('form-message--error');
+        message.classList.remove('form-message--success');
+      }
+    };
+
+    const openFormModal = () => {
+      formModal?.classList.remove('is-hidden');
+      formModal?.setAttribute('aria-hidden', 'false');
+    };
+
+    const closeDeleteModal = () => {
+      deleteModal?.classList.add('is-hidden');
+      deleteModal?.setAttribute('aria-hidden', 'true');
+    };
+
+    const openDeleteModal = () => {
+      deleteModal?.classList.remove('is-hidden');
+      deleteModal?.setAttribute('aria-hidden', 'false');
+    };
 
     wishlistButton?.addEventListener('click', () => {
       if (isSaved) {
-        const savedItem = existingWishlistItems[0];
+        openDeleteModal();
+        return;
+      }
+
+      openFormModal();
+    });
+
+    cancelButton?.addEventListener('click', closeFormModal);
+    closeModalButton?.addEventListener('click', closeFormModal);
+    closeDeleteModalButton?.addEventListener('click', closeDeleteModal);
+    cancelDeleteButton?.addEventListener('click', closeDeleteModal);
+
+    confirmDeleteButton?.addEventListener('click', () => {
+      const savedItem = existingWishlistItems[0];
+      if (savedItem) {
+        removeFromWishlist(savedItem.id);
+      }
+      closeDeleteModal();
+      renderCountryDetail(container, countryCode);
+    });
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const priority = Number(formData.get('priority')) || 0;
+      const category = String(formData.get('category') || '').trim();
+      const note = String(formData.get('note') || '').trim();
+
+      if (priority <= 0 || !Number.isFinite(priority)) {
+        if (message) {
+          message.textContent = 'La prioridad debe ser un número mayor a cero.';
+          message.classList.add('form-message--error');
+        }
+        return;
+      }
+
+      if (!category) {
+        if (message) {
+          message.textContent = 'La categoría es obligatoria.';
+          message.classList.add('form-message--error');
+        }
+        return;
+      }
+
+      const alreadyExists = getWishlist().some((item) => item.countryCode === countryCode);
+
+      if (alreadyExists) {
         openConfirmationModal(
           {
-            title: 'Eliminar de la lista',
-            message: `¿Querés quitar ${name} de tus deseos?`,
-            confirmText: 'Eliminar',
-            cancelText: 'Cancelar',
-            variant: 'danger',
+            title: 'País ya guardado',
+            message: `Ya agregaste ${name} a tu lista de deseos. ¿Querés actualizar su información?`,
+            confirmText: 'Actualizar',
+            cancelText: 'No',
+            variant: 'primary',
           },
           () => {
-            if (savedItem) {
-              removeFromWishlist(savedItem.id);
-            }
+            addToWishlist({
+              countryCode,
+              countryName: name,
+              flag: flagUrl,
+              priority,
+              category,
+              note,
+            });
+            closeFormModal();
             renderCountryDetail(container, countryCode);
           }
         );
         return;
       }
 
-      openConfirmationModal(
-        {
-          title: 'Guardar en deseos',
-          message: `¿Querés agregar ${name} a tu lista de deseos?`,
-          confirmText: 'Guardar',
-          cancelText: 'Cancelar',
-          variant: 'primary',
-        },
-        () => {
-          addToWishlist({
-            countryCode,
-            countryName: name,
-            flag: flagUrl,
-            priority: 3,
-            category: 'General',
-            note: 'Guardado desde detalle',
-          });
-          renderCountryDetail(container, countryCode);
-        }
-      );
+      addToWishlist({
+        countryCode,
+        countryName: name,
+        flag: flagUrl,
+        priority,
+        category,
+        note,
+      });
+
+      closeFormModal();
+      renderCountryDetail(container, countryCode);
     });
   } catch (error) {
     container.innerHTML = `
