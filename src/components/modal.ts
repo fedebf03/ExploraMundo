@@ -18,10 +18,9 @@ export function openConfirmationModal(
 
   const modal = document.createElement('div');
   modal.className = 'confirmation-modal';
-  modal.setAttribute('role', 'dialog');
-  modal.setAttribute('aria-modal', 'true');
 
   const confirmLabel = options.confirmText || 'Confirmar';
+
   const cancelLabel = options.cancelText || 'Cancelar';
   const variantClass = options.variant === 'danger' ? 'is-danger' : 'is-primary';
 

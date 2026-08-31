@@ -17,19 +17,9 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
   const response = await fetch(url, { headers });
 
   if (!response.ok) {
-    const errorBody = await response.text().catch(() => '');
-    console.error('Detalle del error de la API:', response.status, errorBody);
-
-    if (response.status === 401 || response.status === 403) {
-      if (!API_KEY) {
-        throw new Error('Falta VITE_API_KEY en el archivo .env. La API requiere una clave válida para autorizar la petición.');
-      }
-
-      throw new Error('La clave de la API no es válida o expiró. Verificá VITE_API_KEY.');
-    }
-
-    throw new Error(`Error ${response.status} (${response.statusText}): ${errorBody || 'Acceso denegado'}`);
+    throw new Error(`Error al consultar la API: ${response.status}`);
   }
+
 
   return response.json();
 }
@@ -40,25 +30,6 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
 export async function getCountries(limit = 10, offset = 0): Promise<ApiResponse> {
   return fetchFromApi<ApiResponse>(`?limit=${limit}&offset=${offset}`);
 }
-
-// busca países con filtros y paginación directa en la API
-export async function searchCountries(params: {
-  q?: string;
-  region?: string;
-  membership?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<ApiResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.q) searchParams.set('q', params.q);
-  if (params.region) searchParams.set('region', params.region);
-  if (params.membership) searchParams.set(`memberships.${params.membership}`, '1');
-  searchParams.set('limit', String(params.limit ?? 10));
-  searchParams.set('offset', String(params.offset ?? 0));
-
-  return fetchFromApi<ApiResponse>(`?${searchParams.toString()}`);
-}
-
 
 // busca un país puntual por su código ISO (ej: "ARG") o por nombre común si no tiene código ISO (ej: "Abkhazia")
 export async function getCountryByCode(code: string): Promise<Country> {

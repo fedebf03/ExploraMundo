@@ -81,7 +81,7 @@ const currencyNames = typeof Intl !== 'undefined' && Intl.DisplayNames
   ? new Intl.DisplayNames(['es'], { type: 'currency' })
   : null;
 
-// traduce una moneda a su nombre en espanol (ej: ARS -> Peso argentino ($), ALL -> Lek albanes)
+// traduce una moneda a su nombre en espanol (ej: ARS -> Peso argentino ($)
 export function formatCurrencyName(curr: any): string {
   if (!curr) return '';
   const code = (typeof curr === 'string' ? curr : curr.code || '').trim().toUpperCase();

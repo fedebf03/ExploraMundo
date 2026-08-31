@@ -5,22 +5,11 @@ import { renderWishlist } from './views/wishlist.view';
 import { renderHistory } from './views/history.view';
 import { renderContact } from './views/contact.view';
 
-const ROUTER_INITIALIZED_KEY = '__exploramundo_router_initialized__';
-
 export function initRouter() {
-  const globalWindow = window as typeof window & {
-    [ROUTER_INITIALIZED_KEY]?: boolean;
-  };
-
-  if (globalWindow[ROUTER_INITIALIZED_KEY]) {
-    return;
-  }
-
-  globalWindow[ROUTER_INITIALIZED_KEY] = true;
-
   window.addEventListener('hashchange', handleRouteChange);
   handleRouteChange();
 }
+
 
 function handleRouteChange() {
   const hash = window.location.hash || '#/';

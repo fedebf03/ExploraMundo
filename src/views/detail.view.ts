@@ -14,7 +14,9 @@ import {
 } from '../utils/country-codes';
 
 export async function renderCountryDetail(container: HTMLElement, countryCode: string) {
+  // si la URL no incluye el codigo de pais, se muestra  un aviso
   if (!countryCode) {
+
     container.innerHTML = `
       <section class="view">
         ${renderEmptyState({
