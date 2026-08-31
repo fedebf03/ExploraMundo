@@ -19,4 +19,5 @@
 /* vistas */
 @import './views/detail.css';
 @import './views/wishlist.css';
-@import './views/contact.css';
+@import './views/history.css';
+@import './views/contact.css';

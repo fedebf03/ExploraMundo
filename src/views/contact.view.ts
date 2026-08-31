@@ -1,3 +1,5 @@
+declare const L: any;
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -9,26 +11,25 @@ function escapeHtml(value: string): string {
 
 export function renderContact(container: HTMLElement) {
   const studioName = 'Estudio Bruma Digital';
-  const studioTag = 'Diseño, estrategia y experiencias digitales';
   const officeAddress = 'Calle 48 N° 650, La Plata, Buenos Aires';
   const email = 'hola@brumadigital.dev';
   const phone = '+54 221 456-7890';
   const hours = 'Lunes a viernes · 9:00 a 18:00';
+  const officeCoords = { lat: -34.9215, lng: -57.9536 };
+
 
   container.innerHTML = `
     <section class="view contact-page">
       <div class="section-header contact-header">
         <h1>📍 Contacto</h1>
-        <p>Estamos en La Plata y listos para ayudarte a crecer.</p>
       </div>
 
       <div class="contact-layout">
         <article class="contact-card">
-          <div class="contact-card__badge">Estudio</div>
           <h2>${escapeHtml(studioName)}</h2>
-          <p class="contact-card__tagline">${escapeHtml(studioTag)}</p>
 
-          <ul class="contact-list">
+          <ul class="contact-list" style="margin-top: 1rem;">
+
             <li>
               <span class="contact-list__label">Dirección</span>
               <strong>${escapeHtml(officeAddress)}</strong>
@@ -48,37 +49,17 @@ export function renderContact(container: HTMLElement) {
           </ul>
         </article>
 
-        <aside class="contact-map-card" aria-label="Mapa de la ubicación del estudio">
+        <aside class="contact-map-card">
           <div class="contact-map-card__header">
-            <h3>Ubicación</h3>
-            <span>Catedral de La Plata</span>
+            <h3>Nuestra ubicación</h3>
           </div>
 
-          <div class="contact-map" role="img" aria-label="Mapa de la zona de la Catedral de La Plata">
-            <div class="map-grid"></div>
-            <div class="map-road map-road--vertical">
-              <span class="road-name">Calle 48</span>
-            </div>
-            <div class="map-road map-road--horizontal">
-              <span class="road-name">Diagonal 74</span>
-            </div>
-            <div class="map-road map-road--diagonal">
-              <span class="road-name">Avenida 7</span>
-            </div>
-            <div class="map-park map-park--one"></div>
-            <div class="map-park map-park--two"></div>
-            <div class="map-pin" aria-hidden="true">
-              <span></span>
-            </div>
-            <div class="map-label">Catedral de La Plata</div>
-          </div>
-
-          <div class="map-coords">
-            <span>Lat: -34.9215</span>
-            <span>Lng: -57.9536</span>
+          <div class="contact-map-wrapper">
+            <div id="contact-map" style="height: 270px; width: 100%; border-radius: 6px; z-index: 1;"></div>
           </div>
         </aside>
       </div>
+
 
       <form class="contact-form" id="contact-form" novalidate>
         <div class="contact-form__header">
@@ -112,10 +93,47 @@ export function renderContact(container: HTMLElement) {
           <button type="submit" class="btn btn-primary">Enviar mensaje</button>
         </div>
 
-        <p class="contact-form__message" id="contact-form-message" aria-live="polite"></p>
+        <p class="contact-form__message" id="contact-form-message"></p>
       </form>
     </section>
   `;
+
+  // Inicializamos el mapa interactivo con Leaflet + OpenStreetMap
+  setTimeout(() => {
+    const mapElement = document.getElementById('contact-map');
+    if (!mapElement || typeof L === 'undefined') return;
+
+    try {
+      const coords: [number, number] = [officeCoords.lat, officeCoords.lng];
+      const map = L.map('contact-map', {
+        scrollWheelZoom: false, // evita que haga zoom al scrollear la pagina
+      }).setView(coords, 16);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map);
+
+      const marker = L.marker(coords, {
+        title: studioName,
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <div style="font-family: inherit; font-size: 0.85rem; color: #0f172a; line-height: 1.3;">
+          <strong style="display: block; font-size: 0.95rem; margin-bottom: 2px;">${escapeHtml(studioName)}</strong>
+          <span>${escapeHtml(officeAddress)}</span>
+          <span style="display: block; color: #64748b; font-size: 0.75rem; margin-top: 4px;">${escapeHtml(hours)}</span>
+        </div>
+      `).openPopup();
+
+      // reajustamos el tamaño del mapa una vez montado en el DOM
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 150);
+    } catch (err) {
+      console.error('Error al inicializar el mapa de Leaflet:', err);
+    }
+  }, 50);
 
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   const message = document.getElementById('contact-form-message');
@@ -147,3 +165,4 @@ export function renderContact(container: HTMLElement) {
     form.reset();
   });
 }
+
