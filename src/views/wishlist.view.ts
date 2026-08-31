@@ -2,7 +2,6 @@ import { getWishlist, removeFromWishlist } from '../services/storage.service';
 import { renderEmptyState } from '../components/empty-state';
 import { openConfirmationModal } from '../components/modal';
 
-
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -32,6 +31,46 @@ function getPriorityLabel(priority: number): string {
 export function renderWishlist(container: HTMLElement) {
   const items = getWishlist();
 
+  const wishlistContent = items.length === 0
+    ? renderEmptyState({
+        title: 'Todavía no guardaste ningún destino',
+        description: 'Entrá al buscador para elegir países y agregarlos con tus notas personales.',
+        actionHref: '#/busqueda',
+        actionText: 'Buscar países'
+      })
+    : `
+      <div class="wishlist-grid">
+        ${items
+          .map(
+            (item) => `
+              <article class="wishlist-item" data-id="${item.id}" data-country-code="${escapeHtml(item.countryCode)}">
+                <div class="wishlist-item__top">
+                  <div class="wishlist-item__flag-wrap">
+                    <img src="${escapeHtml(item.flag)}" alt="Bandera de ${escapeHtml(item.countryName)}" class="wishlist-item__flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
+                  </div>
+                  <div class="wishlist-item__meta">
+                    <h3>${escapeHtml(item.countryName)}</h3>
+                    <span class="wishlist-item__code">${escapeHtml(item.countryCode)}</span>
+                  </div>
+                </div>
+
+                <div class="wishlist-item__details">
+                  <span><strong>Prioridad:</strong> ${getPriorityLabel(item.priority)}</span>
+                  <span><strong>Categoría:</strong> ${escapeHtml(item.category)}</span>
+                </div>
+
+                ${item.note ? `<p class="wishlist-item__note">${escapeHtml(item.note)}</p>` : ''}
+
+                <button class="btn btn-secondary btn-delete wishlist-delete" type="button" data-id="${item.id}">
+                  Eliminar
+                </button>
+              </article>
+            `
+          )
+          .join('')}
+      </div>
+    `;
+
   container.innerHTML = `
     <section class="view">
       <div class="section-header" style="margin-bottom: 1.5rem;">
@@ -39,60 +78,17 @@ export function renderWishlist(container: HTMLElement) {
         <p>Países y lugares que guardaste para consultar más adelante.</p>
       </div>
 
-
-      ${items.length === 0
-        ? renderEmptyState({
-            title: 'Todavía no guardaste ningún destino',
-            description: 'Entrá al buscador para elegir países y agregarlos con tus notas personales.',
-            actionHref: '#/busqueda',
-            actionText: 'Buscar países'
-          })
-        : `
-
-
-
-          <div class="wishlist-grid">
-            ${items
-              .map(
-                (item) => `
-                  <article class="wishlist-item" data-id="${item.id}" data-country-code="${escapeHtml(item.countryCode)}">
-                    <div class="wishlist-item__top">
-                      <div class="wishlist-item__flag-wrap">
-                        <img src="${escapeHtml(item.flag)}" alt="Bandera de ${escapeHtml(item.countryName)}" class="wishlist-item__flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
-                      </div>
-                      <div class="wishlist-item__meta">
-                        <h3>${escapeHtml(item.countryName)}</h3>
-                        <span class="wishlist-item__code">${escapeHtml(item.countryCode)}</span>
-                      </div>
-                    </div>
-
-                    <div class="wishlist-item__details">
-                      <span><strong>Prioridad:</strong> ${getPriorityLabel(item.priority)}</span>
-                      <span><strong>Categoría:</strong> ${escapeHtml(item.category)}</span>
-                    </div>
-
-
-                    ${item.note ? `<p class="wishlist-item__note">${escapeHtml(item.note)}</p>` : ''}
-
-                    <button class="btn btn-secondary btn-delete wishlist-delete" type="button" data-id="${item.id}">
-                      Eliminar
-                    </button>
-                  </article>
-                `
-              )
-              .join('')}
-          </div>
-        `}
+      ${wishlistContent}
     </section>
   `;
 
-  const wishlistItems = document.querySelectorAll('.wishlist-item');
-  wishlistItems.forEach((item) => {
-    item.addEventListener('click', (event) => {
+  const wishlistCards = document.querySelectorAll('.wishlist-item');
+  wishlistCards.forEach((card) => {
+    card.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       if (target.closest('.wishlist-delete')) return;
 
-      const countryCode = item.getAttribute('data-country-code');
+      const countryCode = card.getAttribute('data-country-code');
       if (countryCode) {
         window.location.hash = `#/detalle/${countryCode}`;
       }
@@ -104,10 +100,10 @@ export function renderWishlist(container: HTMLElement) {
     button.addEventListener('click', (event) => {
       event.stopPropagation();
 
-      const id = button.getAttribute('data-id');
-      if (!id) return;
+      const itemId = button.getAttribute('data-id');
+      if (!itemId) return;
 
-      const item = items.find((entry) => entry.id === id);
+      const item = items.find((entry) => entry.id === itemId);
       const countryName = item?.countryName || 'este destino';
 
       openConfirmationModal(
@@ -119,7 +115,7 @@ export function renderWishlist(container: HTMLElement) {
           variant: 'danger',
         },
         () => {
-          removeFromWishlist(id);
+          removeFromWishlist(itemId);
           renderWishlist(container);
         }
       );

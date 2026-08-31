@@ -13,42 +13,24 @@
   transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
 
+@media (max-width: 480px) {
+  .btn {
+    padding: 0 1rem;
+    font-size: 0.95rem;
+  }
+}
+
 .btn:active {
   transform: scale(0.97);
 }
 
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-primary);
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
-.btn-danger {
-  background: #dc2626;
-  color: var(--text-primary);
-  border: 1px solid rgba(248, 113, 113, 0.7);
-}
-
-.btn-danger:hover {
-  opacity: 0.9;
-}
-
-.btn-secondary {
-  background: var(--bg-surface-hover);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
-
 .scroll-top-btn {
   position: fixed;
-  right: 1rem;
+  right: max(1rem, env(safe-area-inset-right));
   bottom: calc(82px + env(safe-area-inset-bottom));
   width: 48px;
   height: 48px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary-color), #0ea5e9);
   color: var(--text-primary);
@@ -90,6 +72,32 @@
     bottom: 1.25rem;
     right: 1.25rem;
   }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-danger {
+  background: #b91c1c;
+  color: white;
+  border: 1px solid rgba(248, 113, 113, 0.8);
+}
+
+.btn-success {
+  background: #16a34a;
+  color: white;
 }
 
 button,

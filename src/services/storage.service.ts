@@ -1,7 +1,6 @@
 const WISHLIST_KEY = 'exploramundo_wishlist';
 const HISTORY_KEY = 'exploramundo_history';
 
-// modelo oficial para los destinos guardados en deseos (RF5)
 export interface WishlistItem {
   id: string;
   countryCode: string;
@@ -21,7 +20,6 @@ export interface HistoryItem {
   visitedAt: string;
 }
 
-// recupera datos asegurando que siempre devuelva un arreglo valido
 function getItem<T>(key: string): T[] {
   try {
     const raw = localStorage.getItem(key);
@@ -42,11 +40,9 @@ function setItem<T>(key: string, value: T[]): void {
   }
 }
 
-// valida y normaliza un elemento para que nunca rompa la vista
 function sanitizeWishlistItem(item: any): WishlistItem | null {
   if (!item || typeof item !== 'object') return null;
 
-  // extraemos los campos soportando posibles versiones anteriores
   const countryCode = String(item.countryCode || item.code || '').trim();
   const countryName = String(item.countryName || item.name || '').trim();
   const flag = String(item.flag || item.flagUrl || 'https://flagcdn.com/w640/un.png').trim();
@@ -56,7 +52,6 @@ function sanitizeWishlistItem(item: any): WishlistItem | null {
   const id = String(item.id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const createdAt = String(item.createdAt || item.dateAdded || new Date().toISOString());
 
-  // si no tiene codigo o nombre minimo, lo descartamos por corrupto
   if (!countryCode || !countryName) return null;
 
   return {
@@ -71,8 +66,6 @@ function sanitizeWishlistItem(item: any): WishlistItem | null {
   };
 }
 
-// LISTA DE DESEOS (RF5)
-
 export function getWishlist(): WishlistItem[] {
   const rawList = getItem<any>(WISHLIST_KEY);
   const validItems: WishlistItem[] = [];
@@ -81,10 +74,7 @@ export function getWishlist(): WishlistItem[] {
   for (const raw of rawList) {
     const sanitized = sanitizeWishlistItem(raw);
     if (!sanitized) continue;
-
-    if (seen.has(sanitized.countryCode)) {
-      continue;
-    }
+    if (seen.has(sanitized.countryCode)) continue;
 
     seen.add(sanitized.countryCode);
     validItems.push(sanitized);
@@ -93,6 +83,11 @@ export function getWishlist(): WishlistItem[] {
   return validItems.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+}
+
+export function isCountryInWishlist(countryCode: string): boolean {
+  const normalizedCode = countryCode.trim().toUpperCase();
+  return getWishlist().some((wishlistItem) => wishlistItem.countryCode.toUpperCase() === normalizedCode);
 }
 
 export function addToWishlist(item: Omit<WishlistItem, 'id' | 'createdAt'>): WishlistItem {
@@ -124,11 +119,18 @@ export function addToWishlist(item: Omit<WishlistItem, 'id' | 'createdAt'>): Wis
 
 export function removeFromWishlist(id: string): void {
   const current = getWishlist();
-  const filtered = current.filter((w) => w.id !== id);
+  const filtered = current.filter((wishlistItem) => wishlistItem.id !== id);
   setItem(WISHLIST_KEY, filtered);
 }
 
-// HISTORIAL (RF6)
+export function removeFromWishlistByCountryCode(countryCode: string): void {
+  const current = getWishlist();
+  const filtered = current.filter(
+    (wishlistItem) => wishlistItem.countryCode.toUpperCase() !== countryCode.trim().toUpperCase()
+  );
+  setItem(WISHLIST_KEY, filtered);
+}
+
 function sanitizeHistoryItem(item: any): HistoryItem | null {
   if (!item || typeof item !== 'object') return null;
 
@@ -151,28 +153,33 @@ function sanitizeHistoryItem(item: any): HistoryItem | null {
 export function getHistory(): HistoryItem[] {
   const rawList = getItem<any>(HISTORY_KEY);
   const validItems: HistoryItem[] = [];
+  const seen = new Set<string>();
 
   for (const raw of rawList) {
     const sanitized = sanitizeHistoryItem(raw);
-    if (sanitized) {
-      validItems.push(sanitized);
-    }
+    if (!sanitized) continue;
+    if (seen.has(sanitized.countryCode)) continue;
+
+    seen.add(sanitized.countryCode);
+    validItems.push(sanitized);
   }
 
-  return validItems
-    .sort((a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime());
+  return validItems.sort((a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime());
 }
 
-export function addToHistory(item: Omit<HistoryItem, 'id'>): HistoryItem {
+export function addToHistory(item: Partial<HistoryItem> & Pick<HistoryItem, 'countryCode' | 'countryName' | 'flag'> & { visitedAt?: string }): HistoryItem {
   const current = getHistory();
   const nextEntry: HistoryItem = {
-    ...item,
-    id: `${item.countryCode}-${Date.now()}`,
+    id: item.id || `${item.countryCode}-${Date.now()}`,
+    countryCode: item.countryCode,
+    countryName: item.countryName,
+    flag: item.flag,
+    visitedAt: item.visitedAt || new Date().toISOString(),
   };
 
   const filtered = current.filter((entry) => entry.countryCode !== item.countryCode);
-  const updated = [nextEntry, ...filtered];
-  setItem(HISTORY_KEY, updated.slice(0, 30));
+  const updated = [nextEntry, ...filtered].slice(0, 30);
+  setItem(HISTORY_KEY, updated);
 
   return nextEntry;
 }

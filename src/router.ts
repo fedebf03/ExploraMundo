@@ -5,29 +5,31 @@ import { renderWishlist } from './views/wishlist.view';
 import { renderHistory } from './views/history.view';
 import { renderContact } from './views/contact.view';
 
+const ROUTER_INITIALIZED_KEY = '__exploramundo_router_initialized__';
 
-
-// función para arrancar a escuchar los cambios de pantalla
 export function initRouter() {
-  // escuchamos cuando cambia el hash en la url
-  window.addEventListener('hashchange', handleRouteChange);
+  const globalWindow = window as typeof window & {
+    [ROUTER_INITIALIZED_KEY]?: boolean;
+  };
 
-  // ejecutamos una vez al principio para cargar la vista actual
+  if (globalWindow[ROUTER_INITIALIZED_KEY]) {
+    return;
+  }
+
+  globalWindow[ROUTER_INITIALIZED_KEY] = true;
+
+  window.addEventListener('hashchange', handleRouteChange);
   handleRouteChange();
 }
 
-
 function handleRouteChange() {
-  // agarramos la ruta actual del hash (si no hay nada mandamos al inicio)
   const hash = window.location.hash || '#/';
   const app = document.getElementById('app');
 
   if (!app) return;
 
-  // pintamos de activo el botón de la barra según la sección
   updateActiveNavLink(hash);
 
-  // según la ruta cargamos la pantalla que corresponda
   switch (true) {
     case hash === '#/' || hash === '':
       renderHome(app);
@@ -57,7 +59,6 @@ function handleRouteChange() {
       renderContact(app);
       break;
 
-
     default:
       app.innerHTML = `
         <section class="view">
@@ -68,12 +69,10 @@ function handleRouteChange() {
   }
 }
 
-// función para ponerle la clase .active al botón de la navbar que tocamos
 function updateActiveNavLink(currentHash: string) {
   const navLinks = document.querySelectorAll('.nav-item');
   navLinks.forEach((link) => {
     const route = link.getAttribute('data-route');
-    // comparamos si la ruta del botón coincide con el hash actual
     if (route && (currentHash === `#${route}` || (currentHash === '#/' && route === '/'))) {
       link.classList.add('active');
     } else {
