@@ -37,11 +37,13 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
   `;
 
   try {
+    // pedimos los datos completos del pais a la API
     const country = await getCountryByCode(countryCode);
     const name = getCountryDisplayName(country);
     const officialName = country.names?.translations?.spa?.official || country.translations?.spa?.official || country.names?.official || country.name?.official || '';
     const flagUrl = getFlagUrl(country);
 
+    // guardamos la visita en el historial local con la fecha actual
     addToHistory({
       countryCode,
       countryName: name,
@@ -53,12 +55,15 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     const region = formatRegionName(country.region || '');
     const subregion = formatSubregionName(country.subregion || '');
     const population = country.population ? Number(country.population).toLocaleString('es-AR') : '0';
+
+    // revisamos si ya lo teniamos guardado en deseos para cambiar el color y texto del boton
     const existingWishlistItems = getWishlist().filter((item) => item.countryCode === countryCode);
     const existingCount = existingWishlistItems.length;
     const isSaved = existingCount > 0;
     const wishlistButtonText = isSaved ? 'Eliminar de la lista' : 'Agregar a lista de deseos';
     const wishlistButtonClass = isSaved ? 'btn btn-danger' : 'btn btn-primary';
 
+    // traducimos los idiomas y monedas al español usando la API de Intl
     const languages = Array.isArray(country.languages) && country.languages.length > 0
       ? country.languages.map((language: any) => formatLanguageName(language)).filter(Boolean).join(', ')
       : 'No disponible';
@@ -88,6 +93,7 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       ? `<a href="${officialSite}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); text-decoration: underline; word-break: break-all;">Visitar sitio oficial ↗</a>`
       : 'No disponible';
 
+    // armamos los links a los paises limitrofes para poder navegar entre fronteras
     const borders = Array.isArray(country.borders) && country.borders.length > 0
       ? country.borders
           .map((borderCode: string) => `<a href="#/detalle/${borderCode}" class="badge-border">${getCountryNameFromCode(borderCode)}</a>`)
@@ -95,6 +101,7 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       : '<span style="color: var(--text-secondary); font-size: 0.9rem;">No posee fronteras terrestres</span>';
 
     const isoCodeStr = country.codes?.alpha_3 || country.codes?.alpha_2 || 'Sin código asignado';
+
 
     container.innerHTML = `
       <section class="view">

@@ -51,8 +51,9 @@ function renderResults() {
   }
 }
 
-// filtra y ordena los paises guardados
+// filtra y ordena los paises guardados en memoria segun lo que eligio el usuario
 function applyFilters() {
+  // leemos los valores de los inputs y selects del buscador
   const qRaw = (document.getElementById('search-input') as HTMLInputElement)?.value || '';
   const q = normalizeText(qRaw);
   const region = (document.getElementById('region-select') as HTMLSelectElement)?.value.toLowerCase();
@@ -68,6 +69,7 @@ function applyFilters() {
     const code2 = normalizeText(c.codes?.alpha_2 || '');
     const cRegion = (c.region || '').toLowerCase();
 
+    // 1. filtro por texto: busca por nombre en español, ingles, capital o codigo iso (ej: ARG)
     const matchText = !q ||
       nameSpa.includes(q) ||
       officialSpa.includes(q) ||
@@ -76,8 +78,10 @@ function applyFilters() {
       code3 === q ||
       code2 === q;
 
+    // 2. filtro por continente (America, Europa, Asia, etc)
     const matchRegion = !region || cRegion === region;
 
+    // 3. filtro por idioma oficial del pais
     let matchLang = true;
     if (lang) {
       if (!c.languages || !Array.isArray(c.languages)) {
@@ -103,10 +107,11 @@ function applyFilters() {
       }
     }
 
+    // se tienen que cumplir todos los filtros seleccionados a la vez
     return matchText && matchRegion && matchLang;
   });
 
-  // ordenamos por nombre en español o cantidad de poblacion
+  // 4. ordenamiento por nombre en español (a-z / z-a) o por cantidad de habitantes
   filteredCountries.sort((a, b) => {
     const nameA = getCountryDisplayName(a);
     const nameB = getCountryDisplayName(b);
@@ -118,6 +123,7 @@ function applyFilters() {
     if (sort === 'pop-asc') return popA - popB;
     return nameA.localeCompare(nameB, 'es');
   });
+
 
 
   currentPage = 1;
