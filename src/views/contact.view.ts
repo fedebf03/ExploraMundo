@@ -64,7 +64,7 @@ export function renderContact(container: HTMLElement) {
       <form class="contact-form" id="contact-form" novalidate>
         <div class="contact-form__header">
           <h3>Escribinos</h3>
-          <p>Te respondemos en la próxima jornada hábil.</p>
+          <p>Dejanos tu mensaje y te respondemos a la brevedad.</p>
         </div>
 
         <div class="contact-form__grid">
