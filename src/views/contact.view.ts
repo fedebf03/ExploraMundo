@@ -93,7 +93,7 @@ export function renderContact(container: HTMLElement) {
           <button type="submit" class="btn btn-primary">Enviar mensaje</button>
         </div>
 
-        <p class="contact-form__message" id="contact-form-message"></p>
+        <p class="contact-form__message" id="contact-form-message" aria-live="polite"></p>
       </form>
     </section>
   `;
@@ -138,6 +138,36 @@ export function renderContact(container: HTMLElement) {
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   const message = document.getElementById('contact-form-message');
 
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  const setFormMessage = (text: string, type: 'error' | 'success') => {
+    if (!message) return;
+    message.textContent = text;
+    if (type === 'error') {
+      message.classList.remove('contact-form__message--success');
+      message.classList.add('contact-form__message--error');
+    } else {
+      message.classList.remove('contact-form__message--error');
+      message.classList.add('contact-form__message--success');
+    }
+  };
+
+  const clearFormMessage = () => {
+    if (!message) return;
+    message.textContent = '';
+    message.classList.remove('contact-form__message--error');
+    message.classList.remove('contact-form__message--success');
+  };
+
+  // Limpiar mensaje de error cuando el usuario modifica algún campo
+  form?.querySelectorAll('input, textarea').forEach((input) => {
+    input.addEventListener('input', () => {
+      if (message?.classList.contains('contact-form__message--error')) {
+        clearFormMessage();
+      }
+    });
+  });
+
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -147,21 +177,32 @@ export function renderContact(container: HTMLElement) {
     const subject = String(formData.get('subject') || '').trim();
     const messageText = String(formData.get('message') || '').trim();
 
+    // 1. Validar que todos los campos estén completos
     if (!name || !email || !subject || !messageText) {
-      if (message) {
-        message.textContent = 'Completá todos los campos para enviar tu consulta.';
-        message.classList.remove('contact-form__message--success');
-        message.classList.add('contact-form__message--error');
-      }
+      setFormMessage('Completá todos los campos obligatorios para enviar tu consulta.', 'error');
       return;
     }
 
-    if (message) {
-      message.textContent = `Gracias ${name}, tu mensaje fue enviado correctamente.`;
-      message.classList.remove('contact-form__message--error');
-      message.classList.add('contact-form__message--success');
+    // 2. Validar que el nombre tenga una longitud mínima razonable
+    if (name.length < 2) {
+      setFormMessage('Por favor, ingresá un nombre válido (al menos 2 caracteres).', 'error');
+      return;
     }
 
+    // 3. Validar formato de correo electrónico
+    if (!emailRegex.test(email)) {
+      setFormMessage('Por favor, ingresá un correo electrónico válido (ejemplo: usuario@correo.com).', 'error');
+      return;
+    }
+
+    // 4. Validar que el mensaje tenga contenido suficiente
+    if (messageText.length < 5) {
+      setFormMessage('Por favor, ingresá un mensaje más descriptivo (al menos 5 caracteres).', 'error');
+      return;
+    }
+
+    // Si todas las validaciones pasaron con éxito
+    setFormMessage(`Gracias ${name}, tu mensaje fue enviado correctamente.`, 'success');
     form.reset();
   });
 }
