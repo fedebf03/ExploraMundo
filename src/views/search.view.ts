@@ -10,8 +10,8 @@ const LIMIT = 12;
 let totalCount = 0;
 let isLoading = false;
 
-// hace la busqueda y paginacion directamente contra la API
 async function executeSearch(isLoadMore = false) {
+
   const grid = document.getElementById('search-results');
   const loadMoreBtn = document.getElementById('load-more-btn');
   const count = document.getElementById('results-count');
@@ -38,8 +38,8 @@ async function executeSearch(isLoadMore = false) {
   isLoading = true;
 
   try {
-    // peticion HTTP a la API con los filtros y la paginacion
     const res = await searchCountries({
+
       q,
       region,
       language,
@@ -152,21 +152,18 @@ export async function renderSearch(container: HTMLElement) {
     </section>
   `;
 
-  // la búsqueda se ejecuta únicamente al apretar el botón "Buscar" (o presionar Enter)
   document.getElementById('search-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     executeSearch(false);
   });
 
-  // al apretar "Cargar más", pide la siguiente tanda con offset + 12 a la API
   document.getElementById('load-more-btn')?.addEventListener('click', () => {
     executeSearch(true);
   });
 
-
-
-  // consulta inicial a la API al entrar a la pantalla
+  // carga inicial
   executeSearch(false);
 }
+
 
 

@@ -195,7 +195,7 @@ export function renderContact(container: HTMLElement) {
     message.classList.remove('contact-form__message--success');
   };
 
-  // Limpiar mensaje de error cuando el usuario modifica algún campo
+  // limpia el error al escribir
   form?.querySelectorAll('input, textarea').forEach((input) => {
     input.addEventListener('input', () => {
       if (message?.classList.contains('contact-form__message--error')) {
@@ -213,33 +213,30 @@ export function renderContact(container: HTMLElement) {
     const subject = String(formData.get('subject') || '').trim();
     const messageText = String(formData.get('message') || '').trim();
 
-    // 1. Validar que todos los campos estén completos
+    // validaciones
     if (!name || !email || !subject || !messageText) {
       setFormMessage('Completá todos los campos obligatorios para enviar tu consulta.', 'error');
       return;
     }
 
-    // 2. Validar que el nombre tenga una longitud mínima razonable
     if (name.length < 2) {
       setFormMessage('Por favor, ingresá un nombre válido (al menos 2 caracteres).', 'error');
       return;
     }
 
-    // 3. Validar formato de correo electrónico
     if (!emailRegex.test(email)) {
-      setFormMessage('Por favor, ingresá un correo electrónico válido (ejemplo: usuario@correo.com).', 'error');
+      setFormMessage('Por favor, ingresá un correo electrónico válido.', 'error');
       return;
     }
 
-    // 4. Validar que el mensaje tenga contenido suficiente
     if (messageText.length < 5) {
-      setFormMessage('Por favor, ingresá un mensaje más descriptivo (al menos 5 caracteres).', 'error');
+      setFormMessage('Por favor, ingresá un mensaje de al menos 5 caracteres.', 'error');
       return;
     }
 
-    // Si todas las validaciones pasaron con éxito
     setFormMessage(`Gracias ${name}, tu mensaje fue enviado correctamente.`, 'success');
     form.reset();
   });
+
 }
 

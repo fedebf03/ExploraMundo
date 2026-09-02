@@ -1,9 +1,25 @@
-// traductores nativos de JavaScript (Intl API)
-const regionNames = new Intl.DisplayNames(['es'], { type: 'region' });
-const languageNames = new Intl.DisplayNames(['es'], { type: 'language' });
-const currencyNames = new Intl.DisplayNames(['es'], { type: 'currency' });
+// continentes en español
+const REGIONES: Record<string, string> = {
+  Americas: 'América',
+  Europe: 'Europa',
+  Asia: 'Asia',
+  Africa: 'África',
+  Oceania: 'Oceanía',
+  Antarctic: 'Antártida',
+};
 
-// mapeo completo de codigos de 3 letras a 2 letras para que Intl traduzca todas las fronteras del mundo
+export function formatRegionName(region: string): string {
+  return REGIONES[region] || region || 'Desconocida';
+}
+
+export function formatSubregionName(subregion: string): string {
+  return subregion || 'No disponible';
+}
+
+// traductor nativo de JavaScript
+const regionNames = new Intl.DisplayNames(['es'], { type: 'region' });
+
+// mapeo de codigos de 3 a 2 letras para que Intl traduzca las fronteras
 const ISO3_TO_ISO2: Record<string, string> = {
   AFG: 'AF', ALB: 'AL', DZA: 'DZ', AND: 'AD', AGO: 'AO', ARG: 'AR', ARM: 'AM', AUS: 'AU', AUT: 'AT', AZE: 'AZ',
   BHS: 'BS', BHR: 'BH', BGD: 'BD', BRB: 'BB', BLR: 'BY', BEL: 'BE', BLZ: 'BZ', BEN: 'BJ', BTN: 'BT', BOL: 'BO',
@@ -27,89 +43,31 @@ const ISO3_TO_ISO2: Record<string, string> = {
   ZMB: 'ZM', ZWE: 'ZW', PSE: 'PS', VAT: 'VA', XKX: 'XK'
 };
 
-
-// traduce un codigo ISO de pais (ej: BRA -> Brasil)
 export function getCountryNameFromCode(code: string): string {
   if (!code) return '';
   const clean = code.trim().toUpperCase();
-  const alpha2 = clean.length === 3 ? (ISO3_TO_ISO2[clean] || clean.slice(0, 2)) : clean;
-  try {
-    return regionNames.of(alpha2) || clean;
-  } catch {
-    return clean;
+  const alpha2 = ISO3_TO_ISO2[clean];
+  if (alpha2) {
+    try {
+      return regionNames.of(alpha2) || clean;
+    } catch {
+      return clean;
+    }
   }
+  return clean;
 }
 
-// traduce el idioma a español (ej: "es" -> "Español")
+
 export function formatLanguageName(lang: any): string {
   if (!lang) return '';
-  const code = typeof lang === 'string' ? lang : (lang.iso639_1 || lang.name || '');
-  try {
-    const translated = languageNames.of(code.toLowerCase());
-    return translated ? translated.charAt(0).toUpperCase() + translated.slice(1) : (lang.name || code);
-  } catch {
-    return lang.name || code;
-  }
+  if (typeof lang === 'string') return lang;
+  return lang.native_name || lang.name || '';
 }
 
-// traduce la moneda a español (ej: ARS -> Peso argentino ($)
 export function formatCurrencyName(curr: any): string {
   if (!curr) return '';
-  const code = (typeof curr === 'string' ? curr : curr.code || '').trim().toUpperCase();
+  if (typeof curr === 'string') return curr;
   const symbol = curr.symbol ? ` (${curr.symbol})` : '';
-  try {
-    const translated = currencyNames.of(code);
-    return translated ? `${translated.charAt(0).toUpperCase() + translated.slice(1)}${symbol}` : `${code}${symbol}`;
-  } catch {
-    return `${curr.name || code}${symbol}`;
-  }
+  return `${curr.name || curr.code || ''}${symbol}`;
 }
 
-// traducciones de continentes a español
-const REGIONS: Record<string, string> = {
-  americas: 'América',
-  europe: 'Europa',
-  asia: 'Asia',
-  africa: 'África',
-  oceania: 'Oceanía',
-  antarctic: 'Antártida',
-  antarctica: 'Antártida'
-};
-
-export function formatRegionName(region: string): string {
-  return REGIONS[region?.trim().toLowerCase()] || region || 'Desconocida';
-}
-
-// traducciones de subregiones a español
-const SUBREGIONS: Record<string, string> = {
-  'middle africa': 'África Central',
-  'western africa': 'África Occidental',
-  'eastern africa': 'África Oriental',
-  'northern africa': 'África del Norte',
-  'southern africa': 'África Austral',
-  'south america': 'América del Sur',
-  'north america': 'América del Norte',
-  'central america': 'América Central',
-  'caribbean': 'Caribe',
-  'western europe': 'Europa Occidental',
-  'eastern europe': 'Europa Oriental',
-  'northern europe': 'Europa del Norte',
-  'southern europe': 'Europa del Sur',
-  'central europe': 'Europa Central',
-  'southeast europe': 'Europa Sudoriental',
-  'eastern asia': 'Asia Oriental',
-  'southern asia': 'Asia del Sur',
-  'south-eastern asia': 'Sudeste Asiático',
-  'central asia': 'Asia Central',
-  'western asia': 'Asia Occidental',
-  'polynesia': 'Polinesia',
-  'melanesia': 'Melanesia',
-  'micronesia': 'Micronesia',
-  'australia and new zealand': 'Australia y Nueva Zelanda'
-};
-
-export function formatSubregionName(subregion: string): string {
-  if (!subregion) return '';
-  const key = subregion.trim().toLowerCase();
-  return SUBREGIONS[key] || subregion;
-}

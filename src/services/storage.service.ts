@@ -35,7 +35,8 @@ function setItem<T>(key: string, value: T[]): void {
   } catch {}
 }
 
-// --- LISTA DE DESEOS ---
+// favoritos
+
 
 export function getWishlist(): WishlistItem[] {
   return getItem<WishlistItem>(WISHLIST_KEY).sort(
@@ -68,7 +69,8 @@ export function removeFromWishlist(id: string): void {
 }
 
 
-// --- HISTORIAL DE VISITAS ---
+// historial
+
 
 export function getHistory(): HistoryItem[] {
   return getItem<HistoryItem>(HISTORY_KEY).sort(
