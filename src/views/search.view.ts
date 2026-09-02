@@ -31,8 +31,9 @@ async function executeSearch(isLoadMore = false) {
     currentResults = [];
     grid.innerHTML = renderLoader('Buscando países...');
     if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-    if (count) count.textContent = 'Buscando...';
+    if (count) count.textContent = '';
   }
+
 
   isLoading = true;
 

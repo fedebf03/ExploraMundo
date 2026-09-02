@@ -54,6 +54,8 @@ export function renderContact(container: HTMLElement) {
             <h3>Nuestra ubicación</h3>
           </div>
 
+
+
           <div class="contact-map-wrapper">
             <div id="contact-map" style="height: 270px; width: 100%; border-radius: 6px; z-index: 1;"></div>
           </div>
@@ -99,42 +101,75 @@ export function renderContact(container: HTMLElement) {
     </section>
   `;
 
-  // Inicializamos el mapa interactivo con Leaflet + OpenStreetMap
   setTimeout(() => {
     const mapElement = document.getElementById('contact-map');
     if (!mapElement || typeof L === 'undefined') return;
 
     try {
-      const coords: [number, number] = [officeCoords.lat, officeCoords.lng];
+      const officeLocation: [number, number] = [officeCoords.lat, officeCoords.lng];
       const map = L.map('contact-map', {
-        scrollWheelZoom: false, // evita que haga zoom al scrollear la pagina
-      }).setView(coords, 16);
+        scrollWheelZoom: false,
+      }).setView(officeLocation, 16);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map);
 
-      const marker = L.marker(coords, {
+      // punto de la oficina
+      L.marker(officeLocation, {
         title: studioName,
       }).addTo(map);
 
-      marker.bindPopup(`
-        <div style="font-family: inherit; font-size: 0.85rem; color: #0f172a; line-height: 1.3;">
-          <strong style="display: block; font-size: 0.95rem; margin-bottom: 2px;">${escapeHtml(studioName)}</strong>
-          <span>${escapeHtml(officeAddress)}</span>
-          <span style="display: block; color: #64748b; font-size: 0.75rem; margin-top: 4px;">${escapeHtml(hours)}</span>
-        </div>
-      `).openPopup();
+      // ubicacion del usuario si da permiso
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLocation: [number, number] = [position.coords.latitude, position.coords.longitude];
 
-      // reajustamos el tamaño del mapa una vez montado en el DOM
+            // punto del usuario
+            L.circleMarker(userLocation, {
+              radius: 8,
+              fillColor: '#0284c7',
+              color: '#ffffff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.95,
+            }).addTo(map);
+
+            // linea punteada entre ambos puntos
+            L.polyline([userLocation, officeLocation], {
+              color: '#0284c7',
+              weight: 3,
+              opacity: 0.75,
+              dashArray: '8, 8',
+            }).addTo(map);
+
+            // encuadramos ambos puntos en el mapa
+            map.fitBounds(L.latLngBounds([userLocation, officeLocation]), {
+              padding: [45, 45],
+              maxZoom: 15,
+            });
+          },
+          () => {},
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000,
+          }
+        );
+      }
+
+      // reajuste del mapa al cargar
       setTimeout(() => {
         map.invalidateSize();
       }, 150);
     } catch (err) {
-      console.error('Error al inicializar el mapa de Leaflet:', err);
+      console.error('Error al inicializar el mapa:', err);
     }
   }, 50);
+
+
 
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   const message = document.getElementById('contact-form-message');
