@@ -47,9 +47,9 @@ export function renderHistory(container: HTMLElement) {
 
                     <div class="history-item__meta">
                       <h3>${escapeHtml(historyEntry.countryName)}</h3>
-                      <span class="history-item__code">${escapeHtml(historyEntry.countryCode)}</span>
                     </div>
                   </div>
+
 
                   <p class="history-item__date">Visitado: ${visitedDate}</p>
                 </a>

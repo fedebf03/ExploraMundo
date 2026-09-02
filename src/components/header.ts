@@ -9,10 +9,11 @@ export function renderHeader(): string {
     <nav class="header__nav">
       <a href="#/" class="nav-item" data-route="/">Inicio</a>
       <a href="#/busqueda" class="nav-item" data-route="/busqueda">Buscar</a>
+      <a href="#/favoritos" class="nav-item" data-route="/favoritos">Favoritos</a>
 
-      <a href="#/deseos" class="nav-item" data-route="/deseos">Deseos</a>
       <a href="#/historial" class="nav-item" data-route="/historial">Historial</a>
       <a href="#/contacto" class="nav-item" data-route="/contacto">Contacto</a>
     </nav>
+
   `;
 }

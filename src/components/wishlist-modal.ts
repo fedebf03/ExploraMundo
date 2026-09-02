@@ -3,9 +3,10 @@ export function renderWishlistFormModal(): string {
     <div class="wishlist-modal-backdrop is-hidden" id="wishlist-modal-backdrop" aria-hidden="true">
       <div class="wishlist-modal" role="dialog" aria-modal="true" aria-labelledby="wishlist-modal-title">
         <div class="wishlist-modal__header">
-          <h3 id="wishlist-modal-title">Agregar a lista de deseos</h3>
+          <h3 id="wishlist-modal-title">Guardar en favoritos</h3>
           <button type="button" class="wishlist-modal__close" id="close-wishlist-modal" aria-label="Cerrar modal">×</button>
         </div>
+
 
         <form id="wishlist-form" class="wishlist-form" novalidate>
           <div class="form-group">
@@ -31,9 +32,12 @@ export function renderWishlistFormModal(): string {
           </div>
 
           <div class="form-group">
-            <label for="wishlist-note">Nota (opcional)</label>
-            <textarea id="wishlist-note" class="form-textarea" name="note" maxlength="180" rows="3" placeholder="Observaciones o notas sobre este destino..."></textarea>
+            <label for="wishlist-note">Nota (opcional, máx. 60 caracteres)</label>
+            <textarea id="wishlist-note" class="form-textarea" name="note" maxlength="60" rows="2" placeholder="Observaciones breves sobre este destino..."></textarea>
           </div>
+
+
+
 
           <div class="wishlist-modal__actions">
             <button type="submit" class="btn btn-primary">Guardar</button>
@@ -52,11 +56,12 @@ export function renderDeleteConfirmationModal(): string {
     <div class="wishlist-delete-modal is-hidden" id="wishlist-delete-modal" aria-hidden="true">
       <div class="wishlist-modal" role="dialog" aria-modal="true" aria-labelledby="wishlist-delete-title">
         <div class="wishlist-modal__header">
-          <h3 id="wishlist-delete-title">Eliminar de la lista de deseos</h3>
+          <h3 id="wishlist-delete-title">Eliminar de favoritos</h3>
           <button type="button" class="wishlist-modal__close" id="close-delete-modal" aria-label="Cerrar confirmación">×</button>
         </div>
 
-        <p class="wishlist-delete-modal__text">¿Querés quitar este destino de tu lista de deseos?</p>
+        <p class="wishlist-delete-modal__text">¿Querés quitar este destino de tus favoritos?</p>
+
 
         <div class="wishlist-modal__actions">
           <button type="button" class="btn btn-danger" id="confirm-delete-wishlist">Eliminar</button>

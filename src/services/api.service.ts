@@ -3,7 +3,7 @@ import type { ApiResponse, Country } from '../types/country';
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.restcountries.com/countries/v5';
 const API_KEY = (import.meta.env.VITE_API_KEY || '').trim();
 
-// función genérica para pegarle a la API enviando el token por Header HTTP
+// peticion base a la api con el token
 async function fetchFromApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   const headers: Record<string, string> = {
@@ -30,6 +30,34 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
 export async function getCountries(limit = 10, offset = 0): Promise<ApiResponse> {
   return fetchFromApi<ApiResponse>(`?limit=${limit}&offset=${offset}`);
 }
+
+// busca países aplicando filtros y paginación directa en la API
+export async function searchCountries(params: {
+  q?: string;
+  region?: string;
+  language?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<ApiResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.q) {
+    const cleanQ = params.q.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    searchParams.set('q', cleanQ);
+  }
+
+
+
+
+  if (params.region) searchParams.set('region', params.region);
+  if (params.language) searchParams.set('languages', params.language);
+  searchParams.set('limit', String(params.limit ?? 12));
+  searchParams.set('offset', String(params.offset ?? 0));
+  searchParams.set('response_fields', 'names,codes,flag,flags,capitals,capital,region,population');
+
+  return fetchFromApi<ApiResponse>(`?${searchParams.toString()}`);
+}
+
+
 
 // busca un país puntual por su código ISO (ej: "ARG") o por nombre común si no tiene código ISO (ej: "Abkhazia")
 export async function getCountryByCode(code: string): Promise<Country> {

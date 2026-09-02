@@ -34,11 +34,12 @@ export function renderWishlist(container: HTMLElement) {
   const wishlistContent = items.length === 0
     ? renderEmptyState({
         title: 'Todavía no guardaste ningún destino',
-        description: 'Entrá al buscador para elegir países y agregarlos con tus notas personales.',
+        description: 'Entrá al buscador para elegir países y agregarlos a la lista.',
         actionHref: '#/busqueda',
         actionText: 'Buscar países'
       })
     : `
+
       <div class="wishlist-grid">
         ${items
           .map(
@@ -50,20 +51,21 @@ export function renderWishlist(container: HTMLElement) {
                   </div>
                   <div class="wishlist-item__meta">
                     <h3>${escapeHtml(item.countryName)}</h3>
-                    <span class="wishlist-item__code">${escapeHtml(item.countryCode)}</span>
                   </div>
                 </div>
+
 
                 <div class="wishlist-item__details">
                   <span><strong>Prioridad:</strong> ${getPriorityLabel(item.priority)}</span>
                   <span><strong>Categoría:</strong> ${escapeHtml(item.category)}</span>
                 </div>
 
-                ${item.note ? `<p class="wishlist-item__note">${escapeHtml(item.note)}</p>` : ''}
+                <p class="wishlist-item__note"><strong>Nota:</strong> ${item.note ? escapeHtml(item.note) : 'Sin notas'}</p>
 
                 <button class="btn btn-secondary btn-delete wishlist-delete" type="button" data-id="${item.id}">
                   Eliminar
                 </button>
+
               </article>
             `
           )
@@ -74,13 +76,14 @@ export function renderWishlist(container: HTMLElement) {
   container.innerHTML = `
     <section class="view">
       <div class="section-header" style="margin-bottom: 1.5rem;">
-        <h1>✈️ Lista de deseos</h1>
-        <p>Países y lugares que guardaste para consultar más adelante.</p>
+        <h1>❤️ Lista de favoritos</h1>
+        <p>Países y destinos que guardaste como favoritos.</p>
       </div>
 
       ${wishlistContent}
     </section>
   `;
+
 
   const wishlistCards = document.querySelectorAll('.wishlist-item');
   wishlistCards.forEach((card) => {
@@ -108,12 +111,13 @@ export function renderWishlist(container: HTMLElement) {
 
       openConfirmationModal(
         {
-          title: 'Eliminar de la lista',
-          message: `¿Deseás quitar ${countryName} de tus deseos?`,
+          title: 'Eliminar de favoritos',
+          message: `¿Querés quitar ${countryName} de tus favoritos?`,
           confirmText: 'Eliminar',
           cancelText: 'Cancelar',
           variant: 'danger',
         },
+
         () => {
           removeFromWishlist(itemId);
           renderWishlist(container);

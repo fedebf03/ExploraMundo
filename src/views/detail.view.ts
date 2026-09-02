@@ -56,12 +56,14 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     const subregion = formatSubregionName(country.subregion || '');
     const population = country.population ? Number(country.population).toLocaleString('es-AR') : '0';
 
-    // revisamos si ya lo teniamos guardado en deseos para cambiar el color y texto del boton
+    // revisamos si ya lo teniamos guardado en favoritos para cambiar el color y texto del boton
     const existingWishlistItems = getWishlist().filter((item) => item.countryCode === countryCode);
     const existingCount = existingWishlistItems.length;
     const isSaved = existingCount > 0;
-    const wishlistButtonText = isSaved ? 'Eliminar de la lista' : 'Agregar a lista de deseos';
+    const wishlistButtonText = isSaved ? 'Eliminar de favoritos' : 'Guardar en favoritos';
     const wishlistButtonClass = isSaved ? 'btn btn-danger' : 'btn btn-primary';
+
+
 
     // traducimos los idiomas y monedas al español usando la API de Intl
     const languages = Array.isArray(country.languages) && country.languages.length > 0
@@ -116,11 +118,8 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
             <button id="wishlist-toggle-button" class="${wishlistButtonClass}" type="button" style="width: 100%; margin-top: 1rem;">
               ${wishlistButtonText}
             </button>
-
-            ${isSaved
-              ? `<p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Guardado en deseos (${existingCount})</p>`
-              : '<p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; opacity: 0.9;">Todavía no está en tu lista</p>'}
           </div>
+
 
           <div class="country-detail-main">
             <div class="country-detail-header">
@@ -248,11 +247,12 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
         openConfirmationModal(
           {
             title: 'País ya guardado',
-            message: `Ya agregaste ${name} a tu lista de deseos. ¿Querés actualizar su información?`,
+            message: `Ya agregaste ${name} a tus favoritos. ¿Querés actualizar su información?`,
             confirmText: 'Actualizar',
             cancelText: 'No',
             variant: 'primary',
           },
+
           () => {
             addToWishlist({
               countryCode,

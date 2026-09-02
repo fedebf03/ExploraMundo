@@ -1,5 +1,10 @@
-// mapeo de codigos alpha-3 (3 letras) a alpha-2 (2 letras) para soporte estandar de Intl.DisplayNames
-const ALPHA3_TO_ALPHA2: Record<string, string> = {
+// traductores nativos de JavaScript (Intl API)
+const regionNames = new Intl.DisplayNames(['es'], { type: 'region' });
+const languageNames = new Intl.DisplayNames(['es'], { type: 'language' });
+const currencyNames = new Intl.DisplayNames(['es'], { type: 'currency' });
+
+// mapeo completo de codigos de 3 letras a 2 letras para que Intl traduzca todas las fronteras del mundo
+const ISO3_TO_ISO2: Record<string, string> = {
   AFG: 'AF', ALB: 'AL', DZA: 'DZ', AND: 'AD', AGO: 'AO', ARG: 'AR', ARM: 'AM', AUS: 'AU', AUT: 'AT', AZE: 'AZ',
   BHS: 'BS', BHR: 'BH', BGD: 'BD', BRB: 'BB', BLR: 'BY', BEL: 'BE', BLZ: 'BZ', BEN: 'BJ', BTN: 'BT', BOL: 'BO',
   BIH: 'BA', BWA: 'BW', BRA: 'BR', BRN: 'BN', BGR: 'BG', BFA: 'BF', BDI: 'BI', KHM: 'KH', CMR: 'CM', CAN: 'CA',
@@ -22,87 +27,46 @@ const ALPHA3_TO_ALPHA2: Record<string, string> = {
   ZMB: 'ZM', ZWE: 'ZW', PSE: 'PS', VAT: 'VA', XKX: 'XK'
 };
 
-const regionNames = typeof Intl !== 'undefined' && Intl.DisplayNames
-  ? new Intl.DisplayNames(['es'], { type: 'region' })
-  : null;
 
-// convierte un codigo (ej: BGD o BD) al nombre del pais en español
-const languageNames = typeof Intl !== 'undefined' && Intl.DisplayNames
-  ? new Intl.DisplayNames(['es'], { type: 'language' })
-  : null;
-
+// traduce un codigo ISO de pais (ej: BRA -> Brasil)
 export function getCountryNameFromCode(code: string): string {
   if (!code) return '';
-  const upperCode = code.trim().toUpperCase();
-
-  // si es de 3 letras, buscamos su equivalente de 2 letras
-  const alpha2 = upperCode.length === 3 ? ALPHA3_TO_ALPHA2[upperCode] : upperCode;
-
-  if (alpha2 && regionNames) {
-    try {
-      const translated = regionNames.of(alpha2);
-      if (translated) return translated;
-    } catch {
-      // fallback
-    }
+  const clean = code.trim().toUpperCase();
+  const alpha2 = clean.length === 3 ? (ISO3_TO_ISO2[clean] || clean.slice(0, 2)) : clean;
+  try {
+    return regionNames.of(alpha2) || clean;
+  } catch {
+    return clean;
   }
-
-  return upperCode;
 }
 
-// traduce un objeto de idioma o codigo a su nombre en espanol capitalizado (ej: sq -> Albanes)
+// traduce el idioma a español (ej: "es" -> "Español")
 export function formatLanguageName(lang: any): string {
   if (!lang) return '';
-  if (typeof lang === 'string') {
-    const code = lang.trim().toLowerCase();
-    try {
-      const translated = languageNames?.of(code);
-      if (translated) return translated.charAt(0).toUpperCase() + translated.slice(1);
-    } catch {
-      return lang;
-    }
+  const code = typeof lang === 'string' ? lang : (lang.iso639_1 || lang.name || '');
+  try {
+    const translated = languageNames.of(code.toLowerCase());
+    return translated ? translated.charAt(0).toUpperCase() + translated.slice(1) : (lang.name || code);
+  } catch {
+    return lang.name || code;
   }
-
-  const code = lang.iso639_1 || lang.bcp47 || lang.iso639_2b || lang.iso639_3;
-  if (code && languageNames) {
-    try {
-      const translated = languageNames.of(code.toLowerCase());
-      if (translated) return translated.charAt(0).toUpperCase() + translated.slice(1);
-    } catch {
-      // fallback
-    }
-  }
-
-  const fallback = lang.name || lang.native_name || '';
-  return fallback ? fallback.charAt(0).toUpperCase() + fallback.slice(1) : '';
 }
 
-const currencyNames = typeof Intl !== 'undefined' && Intl.DisplayNames
-  ? new Intl.DisplayNames(['es'], { type: 'currency' })
-  : null;
-
-// traduce una moneda a su nombre en espanol (ej: ARS -> Peso argentino ($)
+// traduce la moneda a español (ej: ARS -> Peso argentino ($)
 export function formatCurrencyName(curr: any): string {
   if (!curr) return '';
   const code = (typeof curr === 'string' ? curr : curr.code || '').trim().toUpperCase();
-  const symbol = typeof curr === 'object' && curr.symbol ? ` (${curr.symbol})` : '';
-
-  if (code && currencyNames) {
-    try {
-      const translated = currencyNames.of(code);
-      if (translated) {
-        return `${translated.charAt(0).toUpperCase() + translated.slice(1)}${symbol}`;
-      }
-    } catch {
-      // fallback
-    }
+  const symbol = curr.symbol ? ` (${curr.symbol})` : '';
+  try {
+    const translated = currencyNames.of(code);
+    return translated ? `${translated.charAt(0).toUpperCase() + translated.slice(1)}${symbol}` : `${code}${symbol}`;
+  } catch {
+    return `${curr.name || code}${symbol}`;
   }
-
-  const fallbackName = typeof curr === 'object' && curr.name ? curr.name : code;
-  return `${fallbackName}${symbol}`;
 }
 
-const REGION_MAP: Record<string, string> = {
+// traducciones de continentes a español
+const REGIONS: Record<string, string> = {
   americas: 'América',
   europe: 'Europa',
   asia: 'Asia',
@@ -112,7 +76,17 @@ const REGION_MAP: Record<string, string> = {
   antarctica: 'Antártida'
 };
 
-const SUBREGION_MAP: Record<string, string> = {
+export function formatRegionName(region: string): string {
+  return REGIONS[region?.trim().toLowerCase()] || region || 'Desconocida';
+}
+
+// traducciones de subregiones a español
+const SUBREGIONS: Record<string, string> = {
+  'middle africa': 'África Central',
+  'western africa': 'África Occidental',
+  'eastern africa': 'África Oriental',
+  'northern africa': 'África del Norte',
+  'southern africa': 'África Austral',
   'south america': 'América del Sur',
   'north america': 'América del Norte',
   'central america': 'América Central',
@@ -128,30 +102,14 @@ const SUBREGION_MAP: Record<string, string> = {
   'south-eastern asia': 'Sudeste Asiático',
   'central asia': 'Asia Central',
   'western asia': 'Asia Occidental',
-  'northern africa': 'África del Norte',
-  'western africa': 'África Occidental',
-  'eastern africa': 'África Oriental',
-  'middle africa': 'África Central',
-  'southern africa': 'África Austral',
   'polynesia': 'Polinesia',
   'melanesia': 'Melanesia',
   'micronesia': 'Micronesia',
   'australia and new zealand': 'Australia y Nueva Zelanda'
 };
 
-// traduce el continente a espanol (ej: Americas -> América)
-export function formatRegionName(region: string): string {
-  if (!region) return 'Desconocida';
-  const key = region.trim().toLowerCase();
-  return REGION_MAP[key] || region;
-}
-
-// traduce la subregion a espanol (ej: South America -> América del Sur)
 export function formatSubregionName(subregion: string): string {
   if (!subregion) return '';
   const key = subregion.trim().toLowerCase();
-  return SUBREGION_MAP[key] || subregion;
+  return SUBREGIONS[key] || subregion;
 }
-
-
-

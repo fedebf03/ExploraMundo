@@ -27,8 +27,9 @@
 .scroll-top-btn {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
-  bottom: calc(82px + env(safe-area-inset-bottom));
+  bottom: calc(90px + env(safe-area-inset-bottom));
   width: 48px;
+
   height: 48px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
@@ -99,6 +100,8 @@
   background: #16a34a;
   color: white;
 }
+
+
 
 button,
 input,

@@ -24,11 +24,11 @@ function handleRouteChange() {
       renderHome(app);
       break;
 
-    case hash === '#/busqueda' || hash === '#/search':
+    case hash === '#/busqueda':
       renderSearch(app);
       break;
 
-    case hash === '#/deseos' || hash === '#/wishlist':
+    case hash === '#/favoritos':
       renderWishlist(app);
       break;
 
@@ -36,17 +36,14 @@ function handleRouteChange() {
       renderCountryDetail(app, hash.replace('#/detalle/', ''));
       break;
 
-    case hash.startsWith('#/detail/'):
-      renderCountryDetail(app, hash.replace('#/detail/', ''));
-      break;
-
-    case hash === '#/historial' || hash === '#/history':
+    case hash === '#/historial':
       renderHistory(app);
       break;
 
-    case hash === '#/contacto' || hash === '#/contact':
+    case hash === '#/contacto':
       renderContact(app);
       break;
+
 
     default:
       app.innerHTML = `

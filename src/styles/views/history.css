@@ -21,18 +21,29 @@
 .history-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: var(--space-md);
+  margin-block: var(--space-lg);
 }
 
 .history-item {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 0;
+  border-radius: var(--radius-md);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.history-item:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-focus);
 }
 
 .history-item__card-link {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   color: inherit;
   text-decoration: none;
 }
@@ -40,17 +51,13 @@
 .history-item__top {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  padding: 1rem 1rem 0.5rem;
 }
 
 .history-item__flag-wrapper {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 0;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+  background: var(--bg-primary);
 }
 
 .history-item__flag {
@@ -61,38 +68,45 @@
 }
 
 .history-item__meta {
+  padding: var(--space-md) var(--space-md) var(--space-xs);
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 4px;
 }
 
 .history-item__meta h3 {
   margin: 0;
-  font-size: 1.6rem;
-}
-
-.history-item__code {
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .history-item__date {
+
   margin: 0;
-  padding: 0 1rem 1rem;
+  padding: 0 var(--space-md) var(--space-md);
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 481px) {
   .history-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+}
+
+@media (min-width: 768px) {
+  .history-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
   }
 }
 
 @media (min-width: 1024px) {
   .history-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
   }
 }
+

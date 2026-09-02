@@ -12,29 +12,16 @@ if (headerEl) headerEl.innerHTML = renderHeader();
 if (footerEl) footerEl.innerHTML = renderFooter();
 if (bottomNavEl) bottomNavEl.innerHTML = renderNavbar();
 
-const scrollTopButton = document.createElement('button');
-scrollTopButton.type = 'button';
-scrollTopButton.className = 'scroll-top-btn';
-scrollTopButton.setAttribute('aria-label', 'Volver arriba');
-scrollTopButton.textContent = '↑';
+const scrollTopBtn = document.createElement('button');
+scrollTopBtn.className = 'scroll-top-btn';
+scrollTopBtn.textContent = '↑';
+scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+document.body.appendChild(scrollTopBtn);
 
-document.body.appendChild(scrollTopButton);
-
-const toggleScrollTopButton = () => {
-  if (!scrollTopButton) return;
-  if (window.scrollY > 30) {
-    scrollTopButton.classList.add('is-visible');
-  } else {
-    scrollTopButton.classList.remove('is-visible');
-  }
-};
-
-window.addEventListener('scroll', toggleScrollTopButton, { passive: true });
-toggleScrollTopButton();
-
-scrollTopButton.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('is-visible', window.scrollY > 30);
 });
+
 
 initRouter();
 

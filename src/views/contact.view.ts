@@ -70,24 +70,25 @@ export function renderContact(container: HTMLElement) {
         <div class="contact-form__grid">
           <label class="field">
             <span>Nombre</span>
-            <input type="text" name="name" placeholder="Tu nombre" required />
+            <input type="text" name="name" placeholder="Tu nombre" maxlength="60" required />
           </label>
 
           <label class="field">
             <span>Email</span>
-            <input type="email" name="email" placeholder="tu@email.com" required />
+            <input type="email" name="email" placeholder="tu@email.com" maxlength="100" required />
           </label>
         </div>
 
         <label class="field">
           <span>Asunto</span>
-          <input type="text" name="subject" placeholder="¿Sobre qué querés hablar?" required />
+          <input type="text" name="subject" placeholder="¿Sobre qué querés hablar?" maxlength="100" required />
         </label>
 
         <label class="field">
           <span>Mensaje</span>
-          <textarea name="message" rows="5" placeholder="Contanos tu idea, proyecto o consulta..." required></textarea>
+          <textarea name="message" rows="5" placeholder="Contanos tu idea, proyecto o consulta..." maxlength="500" required></textarea>
         </label>
+
 
         <div class="contact-form__actions">
           <button type="submit" class="btn btn-primary">Enviar mensaje</button>

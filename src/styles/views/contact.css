@@ -23,6 +23,8 @@
   padding: 1rem;
 }
 
+
+
 .contact-card h2 {
   margin: 0;
   font-size: clamp(1.6rem, 3vw, 2.2rem);
@@ -125,8 +127,14 @@
   border: 1px solid var(--border-color);
   padding: 0.8rem 0.9rem;
   font: inherit;
-  resize: vertical;
 }
+
+.field textarea {
+  resize: none;
+  height: 120px;
+}
+
+
 
 .field input:focus,
 .field textarea:focus {

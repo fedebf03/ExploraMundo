@@ -17,12 +17,14 @@ export function renderNavbar(): string {
       <span>Buscar</span>
     </a>
 
-    <a href="#/deseos" class="nav-item" data-route="/deseos">
+    <a href="#/favoritos" class="nav-item" data-route="/favoritos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
       </svg>
-      <span>Deseos</span>
+      <span>Favoritos</span>
     </a>
+
+
 
     <a href="#/historial" class="nav-item" data-route="/historial">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
