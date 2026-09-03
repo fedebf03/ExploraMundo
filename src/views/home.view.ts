@@ -44,11 +44,14 @@ export async function renderHome(container: HTMLElement) {
 
   } catch (error) {
     gridContainer.innerHTML = renderEmptyState({
-      title: 'No se pudieron cargar los destinos',
-      description: 'Hubo un error de conexión al intentar obtener los países. Probá recargar la página.',
+      title: 'No se pudieron cargar los países',
+      description: 'Probá de nuevo en unos momentos.',
       actionHref: '#/',
       actionText: 'Reintentar'
     });
   }
+
+
+
 }
 

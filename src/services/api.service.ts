@@ -3,7 +3,7 @@ import type { ApiResponse, Country } from '../types/country';
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.restcountries.com/countries/v5';
 const API_KEY = (import.meta.env.VITE_API_KEY || '').trim();
 
-// peticion base a la api con el token
+// peticion base a la api con manejo de errores de red y HTTP
 async function fetchFromApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   const headers: Record<string, string> = {
@@ -14,15 +14,23 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
     headers.Authorization = `Bearer ${API_KEY}`;
   }
 
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(`Error al consultar la API: ${response.status}`);
+  let response: Response;
+  try {
+    response = await fetch(url, { headers });
+  } catch {
+    // Error de red (sin conexión a internet o fallo de DNS)
+    throw new Error('Error de red');
   }
 
+  // Error HTTP: el servidor respondió con un código fuera del rango 200-299
+  if (!response.ok) {
+    throw new Error(`Error HTTP ${response.status}`);
+  }
 
   return response.json();
 }
+
+
 
 
 

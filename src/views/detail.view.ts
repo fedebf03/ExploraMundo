@@ -114,6 +114,8 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       <section class="view">
         <a href="#/busqueda" class="btn btn-secondary country-detail-back-btn">← Volver al buscador</a>
 
+
+
         <div class="country-detail-layout">
           <div class="country-detail-sidebar">
             <div class="country-detail-flag-wrapper">
@@ -175,6 +177,8 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     `;
 
     initWishlistModal({
+
+
       countryCode,
       countryName: name,
       flagUrl,
@@ -186,19 +190,26 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     if (hasCoordinates) {
       initDetailMap(targetLat!, targetLng!, name);
     }
-  } catch (error) {
-
+  } catch {
     container.innerHTML = `
       <section class="view">
         ${renderEmptyState({
-          title: 'No pudimos encontrar este destino',
-          description: 'El país que buscás no existe o no se encuentra disponible en este momento.',
-          actionHref: '#/busqueda',
-          actionText: 'Volver al buscador',
+          title: 'No se pudo cargar el país',
+          description: 'Probá de nuevo en unos momentos.',
+          actionHref: `#/detalle/${countryCode}`,
+          actionText: 'Reintentar',
         })}
       </section>
     `;
+
+    container.querySelector('.empty-state a')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      renderCountryDetail(container, countryCode);
+    });
   }
+
+
+
 }
 
 // inicializa el mapa interactivo y geolocalizacion del usuario

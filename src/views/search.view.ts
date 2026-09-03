@@ -11,7 +11,6 @@ let totalCount = 0;
 let isLoading = false;
 
 async function executeSearch(isLoadMore = false) {
-
   const grid = document.getElementById('search-results');
   const loadMoreBtn = document.getElementById('load-more-btn');
   const count = document.getElementById('results-count');
@@ -25,22 +24,17 @@ async function executeSearch(isLoadMore = false) {
     currentOffset += LIMIT;
     if (loadMoreBtn) loadMoreBtn.textContent = 'Cargando más...';
   } else {
-
-
     currentOffset = 0;
     currentResults = [];
     grid.innerHTML = renderLoader('Buscando países...');
     if (loadMoreBtn) loadMoreBtn.hidden = true;
     if (count) count.textContent = '';
-
   }
-
 
   isLoading = true;
 
   try {
     const res = await searchCountries({
-
       q,
       region,
       language,
@@ -56,9 +50,6 @@ async function executeSearch(isLoadMore = false) {
     } else {
       currentResults = newItems;
     }
-
-
-
 
     if (currentResults.length === 0) {
       grid.innerHTML = renderEmptyState({
@@ -81,13 +72,16 @@ async function executeSearch(isLoadMore = false) {
       loadMoreBtn.textContent = 'Cargar más destinos';
       loadMoreBtn.hidden = !(currentResults.length < totalCount && newItems.length > 0);
     }
-  } catch (error) {
+  } catch {
     grid.innerHTML = renderEmptyState({
-      title: 'Error al consultar la API',
-      description: 'Hubo un problema de conexión al buscar los países. Verificá tu conexión o probá nuevamente.',
+      title: 'No se pudieron cargar los países',
+      description: 'Probá de nuevo en unos momentos.',
       actionHref: '#/busqueda',
       actionText: 'Reintentar',
     });
+
+
+
     if (loadMoreBtn) loadMoreBtn.hidden = true;
     if (count) count.textContent = '';
   } finally {
@@ -99,7 +93,6 @@ export async function renderSearch(container: HTMLElement) {
   container.innerHTML = `
     <section class="view">
       <form id="search-form" class="search-form">
-
         <div class="form-group">
           <label for="search-input" class="search-label">Nombre o capital</label>
           <input type="search" id="search-input" class="form-input" placeholder="Ej: Argentina, Tokio, París..." autocomplete="off" />
@@ -120,7 +113,6 @@ export async function renderSearch(container: HTMLElement) {
         <div class="form-group">
           <label for="language-select" class="search-label">Idioma</label>
           <select id="language-select" class="form-select">
-
             <option value="">Todos los idiomas</option>
             <option value="Spanish">Español</option>
             <option value="English">Inglés</option>
@@ -151,7 +143,6 @@ export async function renderSearch(container: HTMLElement) {
     </section>
   `;
 
-
   document.getElementById('search-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     executeSearch(false);
@@ -161,9 +152,5 @@ export async function renderSearch(container: HTMLElement) {
     executeSearch(true);
   });
 
-  // carga inicial
   executeSearch(false);
 }
-
-
-
