@@ -215,20 +215,26 @@ export function renderContact(container: HTMLElement) {
       return;
     }
 
-    if (name.length < 2) {
-      setFormMessage('Por favor, ingresá un nombre válido (al menos 2 caracteres).', 'error');
+    if (name.length < 2 || name.length > 60) {
+      setFormMessage('Por favor, ingresá un nombre válido (entre 2 y 60 caracteres).', 'error');
       return;
     }
 
-    if (!emailRegex.test(email)) {
+    if (email.length > 100 || !emailRegex.test(email)) {
       setFormMessage('Por favor, ingresá un correo electrónico válido.', 'error');
       return;
     }
 
-    if (messageText.length < 5) {
-      setFormMessage('Por favor, ingresá un mensaje de al menos 5 caracteres.', 'error');
+    if (subject.length < 2 || subject.length > 100) {
+      setFormMessage('El asunto debe tener entre 2 y 100 caracteres.', 'error');
       return;
     }
+
+    if (messageText.length < 5 || messageText.length > 500) {
+      setFormMessage('El mensaje debe tener entre 5 y 500 caracteres.', 'error');
+      return;
+    }
+
 
     setFormMessage(`Gracias ${name}, tu mensaje fue enviado correctamente.`, 'success');
     form.reset();

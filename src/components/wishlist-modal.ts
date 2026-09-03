@@ -59,9 +59,7 @@ export function renderDeleteConfirmationModal(): string {
           <button type="button" class="wishlist-modal__close" id="close-delete-modal">×</button>
         </div>
 
-
         <p class="wishlist-delete-modal__text">¿Querés quitar este destino de tus favoritos?</p>
-
 
         <div class="wishlist-modal__actions">
           <button type="button" class="btn btn-danger" id="confirm-delete-wishlist">Eliminar</button>
@@ -72,7 +70,6 @@ export function renderDeleteConfirmationModal(): string {
   `;
 }
 
-// inicializa eventos y validaciones del modal de favoritos
 export function initWishlistModal(options: {
   countryCode: string;
   countryName: string;
@@ -137,6 +134,15 @@ export function initWishlistModal(options: {
     onUpdate();
   });
 
+  form?.querySelectorAll('input, select, textarea').forEach((input) => {
+    input.addEventListener('input', () => {
+      if (message?.classList.contains('form-message--error')) {
+        message.textContent = '';
+        message.classList.remove('form-message--error');
+      }
+    });
+  });
+
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -156,6 +162,14 @@ export function initWishlistModal(options: {
     if (!category) {
       if (message) {
         message.textContent = 'La categoría es obligatoria.';
+        message.classList.add('form-message--error');
+      }
+      return;
+    }
+
+    if (note.length > 60) {
+      if (message) {
+        message.textContent = 'La nota no puede superar los 60 caracteres.';
         message.classList.add('form-message--error');
       }
       return;
@@ -197,7 +211,20 @@ export function initWishlistModal(options: {
       note,
     });
 
-    closeFormModal();
-    onUpdate();
+    if (message) {
+      message.textContent = 'Guardado en favoritos exitosamente.';
+      message.classList.remove('form-message--error');
+      message.classList.add('form-message--success');
+    }
+
+
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+    if (submitBtn) submitBtn.disabled = true;
+
+    setTimeout(() => {
+      closeFormModal();
+      if (submitBtn) submitBtn.disabled = false;
+      onUpdate();
+    }, 900);
   });
 }
