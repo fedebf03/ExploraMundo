@@ -1,10 +1,17 @@
+declare const L: any;
+
 import { getCountryByCode } from '../services/api.service';
+
 import { getFlagUrl, getCountryDisplayName } from '../components/country-card';
 import { renderLoader } from '../components/loader';
 import { renderEmptyState } from '../components/empty-state';
-import { addToHistory, addToWishlist, getWishlist, removeFromWishlist } from '../services/storage.service';
-import { openConfirmationModal } from '../components/modal';
-import { renderWishlistFormModal, renderDeleteConfirmationModal } from '../components/wishlist-modal';
+import { addToHistory, getWishlist } from '../services/storage.service';
+import {
+  renderWishlistFormModal,
+  renderDeleteConfirmationModal,
+  initWishlistModal,
+} from '../components/wishlist-modal';
+
 import {
   getCountryNameFromCode,
   formatLanguageName,
@@ -87,7 +94,7 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
 
     const officialSite = country.links?.official;
     const siteLink = officialSite
-      ? `<a href="${officialSite}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); text-decoration: underline; word-break: break-all;">Visitar sitio oficial ↗</a>`
+      ? `<a href="${officialSite}" target="_blank" rel="noopener noreferrer" class="country-detail-official-link">Visitar sitio oficial ↗</a>`
       : 'No disponible';
 
     // fronteras limitrofes
@@ -95,15 +102,17 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       ? country.borders
           .map((borderCode: string) => `<a href="#/detalle/${borderCode}" class="badge-border">${getCountryNameFromCode(borderCode)}</a>`)
           .join(' ')
-      : '<span style="color: var(--text-secondary); font-size: 0.9rem;">No posee fronteras terrestres</span>';
-
+      : '<span class="country-detail-no-borders">No posee países limítrofes</span>';
 
     const isoCodeStr = country.codes?.alpha_3 || country.codes?.alpha_2 || 'Sin código asignado';
 
+    const targetLat = country.coordinates?.lat ?? country.capitals?.[0]?.coordinates?.lat;
+    const targetLng = country.coordinates?.lng ?? country.capitals?.[0]?.coordinates?.lng;
+    const hasCoordinates = typeof targetLat === 'number' && typeof targetLng === 'number';
 
     container.innerHTML = `
       <section class="view">
-        <a href="#/busqueda" class="btn btn-secondary" style="margin-bottom: 1.5rem;">← Volver al buscador</a>
+        <a href="#/busqueda" class="btn btn-secondary country-detail-back-btn">← Volver al buscador</a>
 
         <div class="country-detail-layout">
           <div class="country-detail-sidebar">
@@ -111,11 +120,10 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
               <img src="${flagUrl}" alt="Bandera de ${name}" class="country-detail-flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
             </div>
 
-            <button id="wishlist-toggle-button" class="${wishlistButtonClass}" type="button" style="width: 100%; margin-top: 1rem;">
+            <button id="wishlist-toggle-button" class="${wishlistButtonClass} country-detail-fav-btn" type="button">
               ${wishlistButtonText}
             </button>
           </div>
-
 
           <div class="country-detail-main">
             <div class="country-detail-header">
@@ -124,8 +132,9 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
             </div>
 
             <div class="country-detail-section">
-              <h3>Ficha técnica</h3>
+              <h3>Información general</h3>
               <ul class="country-info-list">
+
                 <li><strong>Capital:</strong> <span>${capital}</span></li>
                 <li><strong>Continente:</strong> <span>${region}${subregion ? ` (${subregion})` : ''}</span></li>
                 <li><strong>Población:</strong> <span>${population} habitantes</span></li>
@@ -139,9 +148,17 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
               </ul>
             </div>
 
+            ${hasCoordinates ? `
+              <div class="country-detail-section">
+                <h3>Ubicación geográfica</h3>
+                <div id="detail-map" class="country-detail-map"></div>
+              </div>
+            ` : ''}
+
+
             <div class="country-detail-section">
-              <h3>Fronteras terrestres</h3>
-              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              <h3>Países limítrofes</h3>
+              <div class="country-detail-borders-list">
                 ${borders}
               </div>
             </div>
@@ -149,135 +166,28 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
         </div>
       </section>
 
+
+
+
+
       ${renderWishlistFormModal()}
       ${renderDeleteConfirmationModal()}
     `;
 
-    const formModal = document.getElementById('wishlist-modal-backdrop');
-    const deleteModal = document.getElementById('wishlist-delete-modal');
-    const wishlistButton = document.getElementById('wishlist-toggle-button') as HTMLButtonElement | null;
-    const form = document.getElementById('wishlist-form') as HTMLFormElement | null;
-    const message = document.getElementById('wishlist-form-message');
-    const cancelButton = document.getElementById('cancel-wishlist-form');
-    const closeModalButton = document.getElementById('close-wishlist-modal');
-    const closeDeleteModalButton = document.getElementById('close-delete-modal');
-    const cancelDeleteButton = document.getElementById('cancel-delete-wishlist');
-    const confirmDeleteButton = document.getElementById('confirm-delete-wishlist');
-
-    const closeFormModal = () => {
-      formModal?.classList.add('is-hidden');
-      formModal?.setAttribute('aria-hidden', 'true');
-      form?.reset();
-      if (message) {
-        message.textContent = '';
-        message.classList.remove('form-message--error');
-        message.classList.remove('form-message--success');
-      }
-    };
-
-    const openFormModal = () => {
-      formModal?.classList.remove('is-hidden');
-      formModal?.setAttribute('aria-hidden', 'false');
-    };
-
-    const closeDeleteModal = () => {
-      deleteModal?.classList.add('is-hidden');
-      deleteModal?.setAttribute('aria-hidden', 'true');
-    };
-
-    const openDeleteModal = () => {
-      deleteModal?.classList.remove('is-hidden');
-      deleteModal?.setAttribute('aria-hidden', 'false');
-    };
-
-    wishlistButton?.addEventListener('click', () => {
-      if (isSaved) {
-        openDeleteModal();
-        return;
-      }
-
-      openFormModal();
+    initWishlistModal({
+      countryCode,
+      countryName: name,
+      flagUrl,
+      isSaved,
+      savedItemId: existingWishlistItems[0]?.id,
+      onUpdate: () => renderCountryDetail(container, countryCode),
     });
 
-    cancelButton?.addEventListener('click', closeFormModal);
-    closeModalButton?.addEventListener('click', closeFormModal);
-    closeDeleteModalButton?.addEventListener('click', closeDeleteModal);
-    cancelDeleteButton?.addEventListener('click', closeDeleteModal);
-
-    confirmDeleteButton?.addEventListener('click', () => {
-      const savedItem = existingWishlistItems[0];
-      if (savedItem) {
-        removeFromWishlist(savedItem.id);
-      }
-      closeDeleteModal();
-      renderCountryDetail(container, countryCode);
-    });
-
-    form?.addEventListener('submit', (event) => {
-      event.preventDefault();
-
-      const formData = new FormData(form);
-      const priority = Number(formData.get('priority')) || 0;
-      const category = String(formData.get('category') || '').trim();
-      const note = String(formData.get('note') || '').trim();
-
-      if (priority <= 0 || !Number.isFinite(priority)) {
-        if (message) {
-          message.textContent = 'La prioridad debe ser un número mayor a cero.';
-          message.classList.add('form-message--error');
-        }
-        return;
-      }
-
-      if (!category) {
-        if (message) {
-          message.textContent = 'La categoría es obligatoria.';
-          message.classList.add('form-message--error');
-        }
-        return;
-      }
-
-      const alreadyExists = getWishlist().some((item) => item.countryCode === countryCode);
-
-      if (alreadyExists) {
-        openConfirmationModal(
-          {
-            title: 'País ya guardado',
-            message: `Ya agregaste ${name} a tus favoritos. ¿Querés actualizar su información?`,
-            confirmText: 'Actualizar',
-            cancelText: 'No',
-            variant: 'primary',
-          },
-
-          () => {
-            addToWishlist({
-              countryCode,
-              countryName: name,
-              flag: flagUrl,
-              priority,
-              category,
-              note,
-            });
-            closeFormModal();
-            renderCountryDetail(container, countryCode);
-          }
-        );
-        return;
-      }
-
-      addToWishlist({
-        countryCode,
-        countryName: name,
-        flag: flagUrl,
-        priority,
-        category,
-        note,
-      });
-
-      closeFormModal();
-      renderCountryDetail(container, countryCode);
-    });
+    if (hasCoordinates) {
+      initDetailMap(targetLat!, targetLng!, name);
+    }
   } catch (error) {
+
     container.innerHTML = `
       <section class="view">
         ${renderEmptyState({
@@ -290,5 +200,71 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     `;
   }
 }
+
+// inicializa el mapa interactivo y geolocalizacion del usuario
+function initDetailMap(targetLat: number, targetLng: number, countryName: string) {
+  setTimeout(() => {
+    const mapElement = document.getElementById('detail-map');
+    if (!mapElement || typeof L === 'undefined') return;
+
+    try {
+      const destCoords: [number, number] = [targetLat, targetLng];
+      const map = L.map('detail-map', { scrollWheelZoom: false }).setView(destCoords, 5);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+        maxZoom: 18,
+      }).addTo(map);
+
+      // punto del pais con popup
+      L.marker(destCoords, { title: countryName })
+        .addTo(map)
+        .bindPopup(`<b>${countryName}</b>`)
+        .openPopup();
+
+      // ubicacion del usuario si da permiso (sin desviar el zoom del pais)
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const userCoords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+
+            // punto del usuario
+            L.circleMarker(userCoords, {
+              radius: 8,
+              fillColor: '#0284c7',
+              color: '#ffffff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.95,
+            }).addTo(map);
+
+            // linea punteada entre ambos puntos
+            L.polyline([userCoords, destCoords], {
+              color: '#0284c7',
+              weight: 3,
+              opacity: 0.75,
+              dashArray: '8, 8',
+            }).addTo(map);
+          },
+          () => {},
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000,
+          }
+        );
+      }
+
+
+      // reajuste del mapa al cargar
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 150);
+    } catch (err) {
+      console.error('Error al inicializar el mapa de detalle:', err);
+    }
+  }, 50);
+}
+
 
 

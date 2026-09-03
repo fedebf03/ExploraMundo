@@ -3,15 +3,16 @@ import { renderCountryCard } from '../components/country-card';
 import { renderLoader } from '../components/loader';
 import { renderEmptyState } from '../components/empty-state';
 
-// función principal que monta la pantalla de Inicio
 export async function renderHome(container: HTMLElement) {
   container.innerHTML = `
     <section class="view">
-      <div class="hero" style="text-align: center; margin-bottom: 2rem;">
-        <h1>🌍 Explorá tu próximo destino</h1>
+      <div class="hero">
+        <h1>Explorá tu próximo destino</h1>
         <p>Encontrá información clave, cultura y datos útiles para planear tu viaje.</p>
-        <a href="#/busqueda" class="btn btn-primary" style="margin-top: 1rem;">Buscar destinos</a>
+
+        <a href="#/busqueda" class="btn btn-primary hero__action">Buscar destinos</a>
       </div>
+
 
       <h2>Destinos aleatorios</h2>
       <div id="home-countries" class="countries-grid">

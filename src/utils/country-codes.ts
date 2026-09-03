@@ -58,16 +58,37 @@ export function getCountryNameFromCode(code: string): string {
 }
 
 
+// traductores nativos de idioma y moneda
+const languageNames = new Intl.DisplayNames(['es'], { type: 'language' });
+const currencyNames = new Intl.DisplayNames(['es'], { type: 'currency' });
+
 export function formatLanguageName(lang: any): string {
   if (!lang) return '';
-  if (typeof lang === 'string') return lang;
-  return lang.native_name || lang.name || '';
+  const code = typeof lang === 'string' ? lang : (lang.iso639_1 || lang.bcp47 || '');
+  if (code) {
+    try {
+      const translated = languageNames.of(code.toLowerCase());
+      if (translated) {
+        return translated.charAt(0).toUpperCase() + translated.slice(1);
+      }
+    } catch {}
+  }
+  return lang.name || '';
 }
 
 export function formatCurrencyName(curr: any): string {
   if (!curr) return '';
-  if (typeof curr === 'string') return curr;
+  const code = (typeof curr === 'string' ? curr : (curr.code || '')).trim().toUpperCase();
   const symbol = curr.symbol ? ` (${curr.symbol})` : '';
-  return `${curr.name || curr.code || ''}${symbol}`;
+  if (code) {
+    try {
+      const translated = currencyNames.of(code);
+      if (translated) {
+        return `${translated.charAt(0).toUpperCase() + translated.slice(1)}${symbol}`;
+      }
+    } catch {}
+  }
+  return `${curr.name || code}${symbol}`;
 }
+
 

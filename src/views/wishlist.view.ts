@@ -75,10 +75,10 @@ export function renderWishlist(container: HTMLElement) {
 
   container.innerHTML = `
     <section class="view">
-      <div class="section-header" style="margin-bottom: 1.5rem;">
-        <h1>❤️ Lista de favoritos</h1>
-        <p>Países y destinos que guardaste como favoritos.</p>
+      <div class="section-header">
+        <h1>Lista de favoritos</h1>
       </div>
+
 
       ${wishlistContent}
     </section>

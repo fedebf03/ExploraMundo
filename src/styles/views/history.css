@@ -1,30 +1,3 @@
-.view {
-  width: 100%;
-}
-
-.section-header {
-  margin-bottom: 1rem;
-}
-
-.section-header h1 {
-  margin: 0 0 0.35rem;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  line-height: 1.1;
-}
-
-.section-header p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.history-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-md);
-  margin-block: var(--space-lg);
-}
-
 .history-item {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -82,31 +55,10 @@
 }
 
 .history-item__date {
-
   margin: 0;
   padding: 0 var(--space-md) var(--space-md);
   color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
-@media (min-width: 481px) {
-  .history-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-md);
-  }
-}
-
-@media (min-width: 768px) {
-  .history-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-lg);
-  }
-}
-
-@media (min-width: 1024px) {
-  .history-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-lg);
-  }
-}
 

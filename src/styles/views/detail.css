@@ -50,12 +50,14 @@
 }
 
 .country-detail-section h3 {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
+  font-weight: 700;
   margin-bottom: var(--space-sm);
   color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 6px;
 }
+
+
+
 
 .country-info-list {
   list-style: none;
@@ -110,28 +112,40 @@
   background-color: var(--bg-surface-hover);
 }
 
-.wishlist-form-card {
-  position: fixed;
-  left: 1rem;
-  right: 1rem;
-  bottom: calc(78px + env(safe-area-inset-bottom));
-  z-index: 110;
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  box-shadow: 0 22px 50px rgba(2, 6, 23, 0.55);
-  padding: 1rem;
-  backdrop-filter: blur(4px);
+.country-detail-back-btn {
+
+  margin-bottom: var(--space-lg);
 }
 
-.wishlist-form-card.is-hidden {
-  display: none;
+.country-detail-fav-btn {
+  width: 100%;
+  margin-top: var(--space-md);
 }
 
-@media (min-width: 768px) {
-  .wishlist-form-card {
-    left: 50%;
-    right: auto;
-    width: min(420px, calc(100vw - 2rem));
-    transform: translateX(-50%);
-  }
+.country-detail-official-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  word-break: break-all;
 }
+
+.country-detail-no-borders {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.country-detail-borders-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.country-detail-map {
+
+  height: 280px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  z-index: 1;
+  border: 1px solid var(--border-color);
+}
+

@@ -20,16 +20,12 @@ export function renderContact(container: HTMLElement) {
 
   container.innerHTML = `
     <section class="view contact-page">
-      <div class="section-header contact-header">
-        <h1>📍 Contacto</h1>
-      </div>
-
       <div class="contact-layout">
+
         <article class="contact-card">
           <h2>${escapeHtml(studioName)}</h2>
 
-          <ul class="contact-list" style="margin-top: 1rem;">
-
+          <ul class="contact-list">
             <li>
               <span class="contact-list__label">Dirección</span>
               <strong>${escapeHtml(officeAddress)}</strong>
@@ -54,13 +50,12 @@ export function renderContact(container: HTMLElement) {
             <h3>Nuestra ubicación</h3>
           </div>
 
-
-
           <div class="contact-map-wrapper">
-            <div id="contact-map" style="height: 270px; width: 100%; border-radius: 6px; z-index: 1;"></div>
+            <div id="contact-map" class="contact-map"></div>
           </div>
         </aside>
       </div>
+
 
 
       <form class="contact-form" id="contact-form" novalidate>
@@ -96,8 +91,9 @@ export function renderContact(container: HTMLElement) {
           <button type="submit" class="btn btn-primary">Enviar mensaje</button>
         </div>
 
-        <p class="contact-form__message" id="contact-form-message" aria-live="polite"></p>
+        <p class="contact-form__message" id="contact-form-message"></p>
       </form>
+
     </section>
   `;
 

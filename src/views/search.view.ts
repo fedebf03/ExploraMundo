@@ -30,8 +30,9 @@ async function executeSearch(isLoadMore = false) {
     currentOffset = 0;
     currentResults = [];
     grid.innerHTML = renderLoader('Buscando países...');
-    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+    if (loadMoreBtn) loadMoreBtn.hidden = true;
     if (count) count.textContent = '';
+
   }
 
 
@@ -65,7 +66,7 @@ async function executeSearch(isLoadMore = false) {
         title: 'Sin resultados',
         description: 'No se encontraron países que coincidan con los filtros seleccionados.',
       });
-      if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+      if (loadMoreBtn) loadMoreBtn.hidden = true;
       if (count) count.textContent = '0 resultados';
       return;
     }
@@ -78,7 +79,7 @@ async function executeSearch(isLoadMore = false) {
 
     if (loadMoreBtn) {
       loadMoreBtn.textContent = 'Cargar más destinos';
-      loadMoreBtn.style.display = currentResults.length < totalCount && newItems.length > 0 ? 'inline-flex' : 'none';
+      loadMoreBtn.hidden = !(currentResults.length < totalCount && newItems.length > 0);
     }
   } catch (error) {
     grid.innerHTML = renderEmptyState({
@@ -87,7 +88,7 @@ async function executeSearch(isLoadMore = false) {
       actionHref: '#/busqueda',
       actionText: 'Reintentar',
     });
-    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+    if (loadMoreBtn) loadMoreBtn.hidden = true;
     if (count) count.textContent = '';
   } finally {
     isLoading = false;
@@ -97,18 +98,15 @@ async function executeSearch(isLoadMore = false) {
 export async function renderSearch(container: HTMLElement) {
   container.innerHTML = `
     <section class="view">
-      <div style="margin-bottom: 1.5rem;">
-        <h1>🔍 Buscá tu próximo destino</h1>
-      </div>
-
       <form id="search-form" class="search-form">
+
         <div class="form-group">
-          <label for="search-input" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Nombre o capital</label>
+          <label for="search-input" class="search-label">Nombre o capital</label>
           <input type="search" id="search-input" class="form-input" placeholder="Ej: Argentina, Tokio, París..." autocomplete="off" />
         </div>
 
         <div class="form-group">
-          <label for="region-select" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Continente</label>
+          <label for="region-select" class="search-label">Continente</label>
           <select id="region-select" class="form-select">
             <option value="">Todos los continentes</option>
             <option value="Americas">América</option>
@@ -120,8 +118,9 @@ export async function renderSearch(container: HTMLElement) {
         </div>
 
         <div class="form-group">
-          <label for="language-select" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Idioma oficial</label>
+          <label for="language-select" class="search-label">Idioma</label>
           <select id="language-select" class="form-select">
+
             <option value="">Todos los idiomas</option>
             <option value="Spanish">Español</option>
             <option value="English">Inglés</option>
@@ -133,24 +132,25 @@ export async function renderSearch(container: HTMLElement) {
           </select>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="height: 44px;">Buscar</button>
+        <button type="submit" class="btn btn-primary search-submit-btn">Buscar</button>
       </form>
 
-      <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
-        <span id="results-count" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
+      <div class="search-results-info">
+        <span id="results-count" class="search-results-count"></span>
       </div>
 
       <div id="search-results" class="countries-grid">
         ${renderLoader('Cargando países...')}
       </div>
 
-      <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem;">
-        <button id="load-more-btn" class="btn btn-secondary" style="display: none; padding: 0.75rem 2rem;">
+      <div class="search-load-more-wrapper">
+        <button id="load-more-btn" class="btn btn-secondary search-load-more-btn" hidden>
           Cargar más destinos
         </button>
       </div>
     </section>
   `;
+
 
   document.getElementById('search-form')?.addEventListener('submit', (e) => {
     e.preventDefault();

@@ -34,8 +34,9 @@ export function renderHistory(container: HTMLElement) {
 
             return `
               <article class="history-item" data-country-code="${escapeHtml(historyEntry.countryCode)}">
-                <a href="#/detalle/${escapeHtml(historyEntry.countryCode)}" class="history-item__card-link" aria-label="Ver detalle de ${escapeHtml(historyEntry.countryName)}">
+                <a href="#/detalle/${escapeHtml(historyEntry.countryCode)}" class="history-item__card-link">
                   <div class="history-item__top">
+
                     <div class="history-item__flag-wrapper">
                       <img
                         src="${escapeHtml(historyEntry.flag)}"
@@ -62,10 +63,11 @@ export function renderHistory(container: HTMLElement) {
 
   container.innerHTML = `
     <section class="view">
-      <div class="section-header" style="margin-bottom: 1.5rem;">
-        <h1>🕒 Historial de visitas</h1>
-        <p>Países que revisaste recientemente.</p>
+      <div class="section-header">
+        <h1>Historial</h1>
       </div>
+
+
 
       ${historyContent}
     </section>

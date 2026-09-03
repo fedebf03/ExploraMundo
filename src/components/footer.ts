@@ -1,5 +1,5 @@
-// componente del pie de pagina de la aplicacion
 export function renderFooter(): string {
+
   return `
     <div class="footer__content">
       <p class="footer__brand"><strong>ExploraMundo</strong></p>

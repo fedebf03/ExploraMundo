@@ -1,4 +1,3 @@
-// estructura de opciones para el estado vacio
 export interface EmptyStateOptions {
   icon?: string;
   title: string;
@@ -7,8 +6,8 @@ export interface EmptyStateOptions {
   actionText?: string;
 }
 
-// componente reutilizable para pantallas o listas sin resultados
 export function renderEmptyState(options: EmptyStateOptions): string {
+
   const iconHtml = options.icon ? `<div class="empty-state__icon">${options.icon}</div>` : '';
   const descHtml = options.description ? `<p class="empty-state__desc">${options.description}</p>` : '';
   const actionHtml = options.actionHref && options.actionText

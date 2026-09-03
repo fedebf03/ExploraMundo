@@ -1,5 +1,5 @@
-// componente de la barra de navegacion inferior para celulares
 export function renderNavbar(): string {
+
   return `
     <a href="#/" class="nav-item" data-route="/">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

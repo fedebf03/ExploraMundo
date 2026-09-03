@@ -1,5 +1,5 @@
-// datos de cada país que vienen de la API
 export interface Country {
+
   names?: {
     common: string;
     official: string;
@@ -19,8 +19,17 @@ export interface Country {
   capitals?: Array<{
     name: string;
     primary?: boolean;
+    coordinates?: {
+      lat?: number;
+      lng?: number;
+    };
   }>;
+  coordinates?: {
+    lat?: number;
+    lng?: number;
+  };
   capital?: string[];
+
   region?: string;
   subregion?: string;
   population?: number;
@@ -71,8 +80,8 @@ export interface Country {
 
 
 
-// estructura de la respuesta con paginación de la API
 export interface ApiResponse {
+
   data: {
     meta: {
       limit: number;

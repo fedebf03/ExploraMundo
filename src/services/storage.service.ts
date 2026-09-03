@@ -44,12 +44,8 @@ export function getWishlist(): WishlistItem[] {
   );
 }
 
-export function isCountryInWishlist(countryCode: string): boolean {
-  const code = countryCode.trim().toUpperCase();
-  return getWishlist().some((item) => item.countryCode.toUpperCase() === code);
-}
-
 export function addToWishlist(item: Omit<WishlistItem, 'id' | 'createdAt'>): WishlistItem {
+
   const current = getWishlist();
   const existing = current.find((x) => x.countryCode === item.countryCode);
 

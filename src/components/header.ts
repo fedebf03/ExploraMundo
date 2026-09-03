@@ -1,5 +1,5 @@
-// componente del encabezado principal de la aplicacion
 export function renderHeader(): string {
+
   return `
     <a href="#/" class="header__logo">
       <img src="./logo.png" alt="Logo ExploraMundo" class="header__logo-img" width="38" height="38" />
