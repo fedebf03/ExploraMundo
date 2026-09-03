@@ -1,14 +1,5 @@
 declare const L: any;
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
 export function renderContact(container: HTMLElement) {
   const studioName = 'Estudio Bruma Digital';
   const officeAddress = 'Calle 48 N° 650, La Plata, Buenos Aires';
@@ -17,33 +8,33 @@ export function renderContact(container: HTMLElement) {
   const hours = 'Lunes a viernes · 9:00 a 18:00';
   const officeCoords = { lat: -34.9215, lng: -57.9536 };
 
-
   container.innerHTML = `
     <section class="view contact-page">
       <div class="contact-layout">
 
         <article class="contact-card">
-          <h2>${escapeHtml(studioName)}</h2>
+          <h2>${studioName}</h2>
 
           <ul class="contact-list">
             <li>
               <span class="contact-list__label">Dirección</span>
-              <strong>${escapeHtml(officeAddress)}</strong>
+              <strong>${officeAddress}</strong>
             </li>
             <li>
               <span class="contact-list__label">Email</span>
-              <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>
+              <a href="mailto:${email}">${email}</a>
             </li>
             <li>
               <span class="contact-list__label">Teléfono</span>
-              <a href="tel:${escapeHtml(phone.replace(/\s+/g, ''))}">${escapeHtml(phone)}</a>
+              <a href="tel:${phone.replace(/\s+/g, '')}">${phone}</a>
             </li>
             <li>
               <span class="contact-list__label">Horario</span>
-              <strong>${escapeHtml(hours)}</strong>
+              <strong>${hours}</strong>
             </li>
           </ul>
         </article>
+
 
         <aside class="contact-map-card">
           <div class="contact-map-card__header">
@@ -112,18 +103,15 @@ export function renderContact(container: HTMLElement) {
         maxZoom: 19,
       }).addTo(map);
 
-      // punto de la oficina
       L.marker(officeLocation, {
         title: studioName,
       }).addTo(map);
 
-      // ubicacion del usuario si da permiso
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const userLocation: [number, number] = [position.coords.latitude, position.coords.longitude];
 
-            // punto del usuario
             L.circleMarker(userLocation, {
               radius: 8,
               fillColor: '#0284c7',
@@ -133,7 +121,6 @@ export function renderContact(container: HTMLElement) {
               fillOpacity: 0.95,
             }).addTo(map);
 
-            // linea punteada entre ambos puntos
             L.polyline([userLocation, officeLocation], {
               color: '#0284c7',
               weight: 3,
@@ -141,7 +128,6 @@ export function renderContact(container: HTMLElement) {
               dashArray: '8, 8',
             }).addTo(map);
 
-            // encuadramos ambos puntos en el mapa
             map.fitBounds(L.latLngBounds([userLocation, officeLocation]), {
               padding: [45, 45],
               maxZoom: 15,
@@ -156,10 +142,10 @@ export function renderContact(container: HTMLElement) {
         );
       }
 
-      // reajuste del mapa al cargar
       setTimeout(() => {
         map.invalidateSize();
       }, 150);
+
     } catch (err) {
       console.error('Error al inicializar el mapa:', err);
     }
@@ -191,7 +177,6 @@ export function renderContact(container: HTMLElement) {
     message.classList.remove('contact-form__message--success');
   };
 
-  // limpia el error al escribir
   form?.querySelectorAll('input, textarea').forEach((input) => {
     input.addEventListener('input', () => {
       if (message?.classList.contains('contact-form__message--error')) {
@@ -209,21 +194,22 @@ export function renderContact(container: HTMLElement) {
     const subject = String(formData.get('subject') || '').trim();
     const messageText = String(formData.get('message') || '').trim();
 
-    // validaciones
     if (!name || !email || !subject || !messageText) {
+
       setFormMessage('Completá todos los campos obligatorios para enviar tu consulta.', 'error');
       return;
     }
 
     if (name.length < 2 || name.length > 60) {
-      setFormMessage('Por favor, ingresá un nombre válido (entre 2 y 60 caracteres).', 'error');
+      setFormMessage('Ingresá un nombre válido (entre 2 y 60 caracteres).', 'error');
       return;
     }
 
     if (email.length > 100 || !emailRegex.test(email)) {
-      setFormMessage('Por favor, ingresá un correo electrónico válido.', 'error');
+      setFormMessage('Ingresá un correo electrónico válido.', 'error');
       return;
     }
+
 
     if (subject.length < 2 || subject.length > 100) {
       setFormMessage('El asunto debe tener entre 2 y 100 caracteres.', 'error');

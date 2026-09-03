@@ -16,7 +16,7 @@ async function executeSearch(isLoadMore = false) {
   const count = document.getElementById('results-count');
   if (!grid || isLoading) return;
 
-  const q = ((document.getElementById('search-input') as HTMLInputElement)?.value || '').trim();
+  const texto = ((document.getElementById('search-input') as HTMLInputElement)?.value || '').trim();
   const region = (document.getElementById('region-select') as HTMLSelectElement)?.value || '';
   const language = (document.getElementById('language-select') as HTMLSelectElement)?.value || '';
 
@@ -34,29 +34,30 @@ async function executeSearch(isLoadMore = false) {
   isLoading = true;
 
   try {
-    const res = await searchCountries({
-      q,
+    const respuesta = await searchCountries({
+      texto,
       region,
       language,
       limit: LIMIT,
       offset: currentOffset,
     });
 
-    const newItems = res.data?.objects || [];
-    totalCount = res.data?.meta?.total ?? newItems.length;
+    const nuevosPaises = respuesta.data?.objects || [];
+    totalCount = respuesta.data?.meta?.total ?? nuevosPaises.length;
 
     if (isLoadMore) {
-      currentResults = [...currentResults, ...newItems];
+      currentResults = [...currentResults, ...nuevosPaises];
     } else {
-      currentResults = newItems;
+      currentResults = nuevosPaises;
     }
 
     if (currentResults.length === 0) {
       grid.innerHTML = renderEmptyState({
         icon: '🔍',
         title: 'Sin resultados',
-        description: 'No se encontraron países que coincidan con los filtros seleccionados.',
+        description: 'No encontramos países con esos filtros. Probá cambiando la búsqueda.',
       });
+
       if (loadMoreBtn) loadMoreBtn.hidden = true;
       if (count) count.textContent = '0 resultados';
       return;
@@ -70,8 +71,9 @@ async function executeSearch(isLoadMore = false) {
 
     if (loadMoreBtn) {
       loadMoreBtn.textContent = 'Cargar más destinos';
-      loadMoreBtn.hidden = !(currentResults.length < totalCount && newItems.length > 0);
+      loadMoreBtn.hidden = !(currentResults.length < totalCount && nuevosPaises.length > 0);
     }
+
   } catch {
     grid.innerHTML = renderEmptyState({
       title: 'No se pudieron cargar los países',

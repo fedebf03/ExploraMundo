@@ -59,23 +59,16 @@ export interface Country {
   borders?: string[];
   area?: {
     kilometers?: number;
-    miles?: number;
   } | number;
   landlocked?: boolean;
-  economy?: {
-    gini_coefficient?: Record<string, number>;
-  };
   cars?: {
     driving_side?: 'right' | 'left' | string;
-    signs?: string[];
   };
   links?: {
     official?: string;
-    wikipedia?: string;
-    google_maps?: string;
-    open_street_maps?: string;
   };
 }
+
 
 
 

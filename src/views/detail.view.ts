@@ -27,11 +27,13 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     container.innerHTML = `
       <section class="view">
         ${renderEmptyState({
-          title: 'País no especificado',
-          description: 'No se indicó ningún código de país para consultar.',
+          title: 'País no encontrado',
+          description: 'No pudimos encontrar el país que buscás.',
           actionHref: '#/busqueda',
           actionText: 'Volver al buscador',
         })}
+
+
       </section>
     `;
     return;
@@ -49,9 +51,9 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
     const officialName = country.names?.translations?.spa?.official || country.translations?.spa?.official || country.names?.official || country.name?.official || '';
     const flagUrl = getFlagUrl(country);
 
-    // historial
     addToHistory({
       countryCode,
+
       countryName: name,
       flag: flagUrl,
       visitedAt: new Date().toISOString(),
@@ -76,35 +78,36 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       ? country.currencies.map((currency: any) => formatCurrencyName(currency)).filter(Boolean).join(', ')
       : 'No disponible';
 
-    let areaStr = 'No disponible';
+    let superficie = 'No disponible';
     if (country.area) {
       if (typeof country.area === 'object' && country.area.kilometers) {
-        areaStr = `${Number(country.area.kilometers).toLocaleString('es-AR')} km²`;
+        superficie = `${Number(country.area.kilometers).toLocaleString('es-AR')} km²`;
       } else if (typeof country.area === 'number') {
-        areaStr = `${Number(country.area).toLocaleString('es-AR')} km²`;
+        superficie = `${Number(country.area).toLocaleString('es-AR')} km²`;
       }
     }
 
-    const coastStr = country.landlocked ? 'Sin salida al mar (Mediterráneo)' : 'Con costa marítima';
-    const drivingSide = country.cars?.driving_side === 'left'
+    const salidaAlMar = country.landlocked ? 'Sin salida al mar (Mediterráneo)' : 'Con costa marítima';
+    const sentidoCirculacion = country.cars?.driving_side === 'left'
       ? 'Por la izquierda (volante a la derecha)'
       : country.cars?.driving_side === 'right'
         ? 'Por la derecha'
         : 'No disponible';
 
     const officialSite = country.links?.official;
-    const siteLink = officialSite
+    const enlaceSitio = officialSite
       ? `<a href="${officialSite}" target="_blank" rel="noopener noreferrer" class="country-detail-official-link">Visitar sitio oficial ↗</a>`
       : 'No disponible';
 
-    // fronteras limitrofes
-    const borders = Array.isArray(country.borders) && country.borders.length > 0
+    const fronteras = Array.isArray(country.borders) && country.borders.length > 0
+
       ? country.borders
           .map((borderCode: string) => `<a href="#/detalle/${borderCode}" class="badge-border">${getCountryNameFromCode(borderCode)}</a>`)
           .join(' ')
-      : '<span class="country-detail-no-borders">No posee países limítrofes</span>';
+      : '<span class="country-detail-no-borders">No tiene países limítrofes</span>';
 
-    const isoCodeStr = country.codes?.alpha_3 || country.codes?.alpha_2 || 'Sin código asignado';
+
+    const codigoIso = country.codes?.alpha_3 || country.codes?.alpha_2 || 'Sin código asignado';
 
     const targetLat = country.coordinates?.lat ?? country.capitals?.[0]?.coordinates?.lat;
     const targetLng = country.coordinates?.lng ?? country.capitals?.[0]?.coordinates?.lng;
@@ -140,13 +143,13 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
                 <li><strong>Capital:</strong> <span>${capital}</span></li>
                 <li><strong>Continente:</strong> <span>${region}${subregion ? ` (${subregion})` : ''}</span></li>
                 <li><strong>Población:</strong> <span>${population} habitantes</span></li>
-                <li><strong>Superficie total:</strong> <span>${areaStr}</span></li>
-                <li><strong>Salida al mar:</strong> <span>${coastStr}</span></li>
-                <li><strong>Sentido de circulación:</strong> <span>${drivingSide}</span></li>
+                <li><strong>Superficie total:</strong> <span>${superficie}</span></li>
+                <li><strong>Salida al mar:</strong> <span>${salidaAlMar}</span></li>
+                <li><strong>Sentido de circulación:</strong> <span>${sentidoCirculacion}</span></li>
                 <li><strong>Idiomas oficiales:</strong> <span>${languages}</span></li>
                 <li><strong>Moneda oficial:</strong> <span>${currencies}</span></li>
-                <li><strong>Código ISO:</strong> <span>${isoCodeStr}</span></li>
-                <li><strong>Sitio web oficial:</strong> <span>${siteLink}</span></li>
+                <li><strong>Código ISO:</strong> <span>${codigoIso}</span></li>
+                <li><strong>Sitio web oficial:</strong> <span>${enlaceSitio}</span></li>
               </ul>
             </div>
 
@@ -161,12 +164,13 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
             <div class="country-detail-section">
               <h3>Países limítrofes</h3>
               <div class="country-detail-borders-list">
-                ${borders}
+                ${fronteras}
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
 
 
@@ -227,19 +231,16 @@ function initDetailMap(targetLat: number, targetLng: number, countryName: string
         maxZoom: 18,
       }).addTo(map);
 
-      // punto del pais con popup
       L.marker(destCoords, { title: countryName })
         .addTo(map)
         .bindPopup(`<b>${countryName}</b>`)
         .openPopup();
 
-      // ubicacion del usuario si da permiso (sin desviar el zoom del pais)
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const userCoords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
 
-            // punto del usuario
             L.circleMarker(userCoords, {
               radius: 8,
               fillColor: '#0284c7',
@@ -249,7 +250,6 @@ function initDetailMap(targetLat: number, targetLng: number, countryName: string
               fillOpacity: 0.95,
             }).addTo(map);
 
-            // linea punteada entre ambos puntos
             L.polyline([userCoords, destCoords], {
               color: '#0284c7',
               weight: 3,
@@ -266,11 +266,10 @@ function initDetailMap(targetLat: number, targetLng: number, countryName: string
         );
       }
 
-
-      // reajuste del mapa al cargar
       setTimeout(() => {
         map.invalidateSize();
       }, 150);
+
     } catch (err) {
       console.error('Error al inicializar el mapa de detalle:', err);
     }

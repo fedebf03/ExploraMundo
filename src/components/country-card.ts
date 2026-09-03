@@ -1,7 +1,6 @@
 import type { Country } from '../types/country';
 import { formatRegionName } from '../utils/country-codes';
 
-// obtiene la url de la bandera o devuelve una imagen por defecto
 export function getFlagUrl(country: Country): string {
   if (country.flag?.url_png) return country.flag.url_png;
   if (country.flag?.url_svg) return country.flag.url_svg;
@@ -15,7 +14,6 @@ export function getFlagUrl(country: Country): string {
   return 'https://flagcdn.com/w640/un.png';
 }
 
-// obtiene el nombre en español provisto por la API (con fallback al nombre comun)
 export function getCountryDisplayName(country: Country): string {
   return (
     country.names?.translations?.spa?.common ||
@@ -26,8 +24,8 @@ export function getCountryDisplayName(country: Country): string {
   );
 }
 
-// genera el html de una tarjeta de país para la grilla
 export function renderCountryCard(country: Country): string {
+
   const name = getCountryDisplayName(country);
   const flagUrl = getFlagUrl(country);
   const capital = country.capitals?.[0]?.name || country.capital?.[0] || 'Sin capital';

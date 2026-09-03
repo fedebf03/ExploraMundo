@@ -1,4 +1,9 @@
-﻿.confirmation-modal {
+body.modal-open {
+  overflow: hidden;
+}
+
+.confirmation-modal {
+
   position: fixed;
   inset: 0;
   display: flex;

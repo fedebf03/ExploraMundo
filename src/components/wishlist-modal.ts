@@ -212,10 +212,11 @@ export function initWishlistModal(options: {
     });
 
     if (message) {
-      message.textContent = 'Guardado en favoritos exitosamente.';
+      message.textContent = 'Destino guardado en favoritos.';
       message.classList.remove('form-message--error');
       message.classList.add('form-message--success');
     }
+
 
 
     const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;

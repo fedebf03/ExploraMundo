@@ -38,10 +38,11 @@ export function openConfirmationModal(
 
   const closeModal = () => {
     modal.remove();
-    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
   };
 
-  document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
+
 
   modal.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;

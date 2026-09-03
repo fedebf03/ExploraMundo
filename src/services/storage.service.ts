@@ -20,74 +20,110 @@ export interface HistoryItem {
   visitedAt: string;
 }
 
-// helpers de localStorage
-function getItem<T>(key: string): T[] {
+// favoritos
+
+export function getWishlist(): WishlistItem[] {
+  const data = localStorage.getItem(WISHLIST_KEY);
+  if (!data) return [];
   try {
-    return JSON.parse(localStorage.getItem(key) || '[]');
+    return JSON.parse(data);
   } catch {
     return [];
   }
 }
 
-function setItem<T>(key: string, value: T[]): void {
+function saveWishlist(list: WishlistItem[]): void {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(list));
   } catch {}
 }
 
-// favoritos
 
+export function addToWishlist(item: {
+  countryCode: string;
+  countryName: string;
+  flag: string;
+  priority: number;
+  category: string;
+  note?: string;
+}): WishlistItem {
+  const list = getWishlist();
+  const existingIndex = list.findIndex((fav) => fav.countryCode === item.countryCode);
 
-export function getWishlist(): WishlistItem[] {
-  return getItem<WishlistItem>(WISHLIST_KEY).sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-}
+  if (existingIndex !== -1) {
+    list[existingIndex].priority = item.priority;
+    list[existingIndex].category = item.category;
+    list[existingIndex].note = item.note;
+    saveWishlist(list);
+    return list[existingIndex];
+  }
 
-export function addToWishlist(item: Omit<WishlistItem, 'id' | 'createdAt'>): WishlistItem {
-
-  const current = getWishlist();
-  const existing = current.find((x) => x.countryCode === item.countryCode);
-
-  const entry: WishlistItem = {
-    ...item,
-    id: existing ? existing.id : `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    createdAt: existing ? existing.createdAt : new Date().toISOString(),
+  const newItem: WishlistItem = {
+    id: 'fav_' + Date.now(),
+    countryCode: item.countryCode,
+    countryName: item.countryName,
+    flag: item.flag,
+    priority: item.priority,
+    category: item.category,
+    note: item.note,
+    createdAt: new Date().toISOString(),
   };
 
-  const next = [entry, ...current.filter((x) => x.countryCode !== item.countryCode)];
-  setItem(WISHLIST_KEY, next);
-  return entry;
+  list.unshift(newItem);
+  saveWishlist(list);
+  return newItem;
 }
 
 export function removeFromWishlist(id: string): void {
-  setItem(WISHLIST_KEY, getWishlist().filter((x) => x.id !== id));
+  const list = getWishlist();
+  const filtered = list.filter((fav) => fav.id !== id);
+  saveWishlist(filtered);
 }
-
 
 // historial
 
-
 export function getHistory(): HistoryItem[] {
-  return getItem<HistoryItem>(HISTORY_KEY).sort(
-    (a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime()
-  );
+  const data = localStorage.getItem(HISTORY_KEY);
+  if (!data) return [];
+  try {
+    const list: HistoryItem[] = JSON.parse(data);
+    return list.sort((a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime());
+  } catch {
+    return [];
+  }
 }
 
-export function addToHistory(item: { countryCode: string; countryName: string; flag: string; visitedAt?: string }): HistoryItem {
-  const current = getHistory();
-  const entry: HistoryItem = {
-    id: `${item.countryCode}-${Date.now()}`,
+function saveHistory(list: HistoryItem[]): void {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch {}
+}
+
+
+export function addToHistory(item: {
+  countryCode: string;
+  countryName: string;
+  flag: string;
+  visitedAt?: string;
+}): HistoryItem {
+  let list = getHistory();
+
+  list = list.filter((h) => h.countryCode !== item.countryCode);
+
+  const newEntry: HistoryItem = {
+    id: 'hist_' + item.countryCode + '_' + Date.now(),
     countryCode: item.countryCode,
     countryName: item.countryName,
     flag: item.flag,
     visitedAt: item.visitedAt || new Date().toISOString(),
   };
 
+  list.unshift(newEntry);
 
-  const next = [entry, ...current.filter((x) => x.countryCode !== item.countryCode)].slice(0, 12);
-  setItem(HISTORY_KEY, next);
-  return entry;
+  if (list.length > 12) {
+    list = list.slice(0, 12);
+  }
+
+  saveHistory(list);
+  return newEntry;
 }
-
-

@@ -3,8 +3,7 @@ import type { ApiResponse, Country } from '../types/country';
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.restcountries.com/countries/v5';
 const API_KEY = (import.meta.env.VITE_API_KEY || '').trim();
 
-// peticion base a la api con manejo de errores de red y HTTP
-async function fetchFromApi<T>(endpoint: string): Promise<T> {
+async function fetchFromApi(endpoint: string): Promise<any> {
   const url = `${API_URL}${endpoint}`;
   const headers: Record<string, string> = {
     'Accept': 'application/json'
@@ -18,11 +17,9 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
   try {
     response = await fetch(url, { headers });
   } catch {
-    // Error de red (sin conexión a internet o fallo de DNS)
     throw new Error('Error de red');
   }
 
-  // Error HTTP: el servidor respondió con un código fuera del rango 200-299
   if (!response.ok) {
     throw new Error(`Error HTTP ${response.status}`);
   }
@@ -30,76 +27,57 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
   return response.json();
 }
 
-
-
-
-
 // trae países paginados (por defecto los primeros 10)
 export async function getCountries(limit = 10, offset = 0): Promise<ApiResponse> {
-  return fetchFromApi<ApiResponse>(`?limit=${limit}&offset=${offset}`);
+  return fetchFromApi(`?limit=${limit}&offset=${offset}`);
 }
 
-// busca países aplicando filtros y paginación directa en la API
+// busca países aplicando filtros y paginación
 export async function searchCountries(params: {
-  q?: string;
+  texto?: string;
   region?: string;
   language?: string;
   limit?: number;
   offset?: number;
 }): Promise<ApiResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.q) {
-    const cleanQ = params.q.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-    searchParams.set('q', cleanQ);
+  const parametros = new URLSearchParams();
+
+  if (params.texto) {
+    const query = params.texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    parametros.set('q', query);
   }
 
+  if (params.region) parametros.set('region', params.region);
+  if (params.language) parametros.set('languages', params.language);
+  parametros.set('limit', String(params.limit ?? 12));
 
+  parametros.set('offset', String(params.offset ?? 0));
+  parametros.set('response_fields', 'names,codes,flag,flags,capitals,capital,region,population');
 
-
-  if (params.region) searchParams.set('region', params.region);
-  if (params.language) searchParams.set('languages', params.language);
-  searchParams.set('limit', String(params.limit ?? 12));
-  searchParams.set('offset', String(params.offset ?? 0));
-  searchParams.set('response_fields', 'names,codes,flag,flags,capitals,capital,region,population');
-
-  return fetchFromApi<ApiResponse>(`?${searchParams.toString()}`);
+  return fetchFromApi(`?${parametros.toString()}`);
 }
 
-
-
-// busca un país puntual por su código ISO (ej: "ARG") o por nombre común si no tiene código ISO (ej: "Abkhazia")
+// busca un país puntual por su código (ARG, AR o nombre)
 export async function getCountryByCode(code: string): Promise<Country> {
-  const cleanCode = decodeURIComponent(code).trim();
-  if (!cleanCode) throw new Error('Código no válido');
+  const codigo = code.trim().toUpperCase();
+  if (!codigo) throw new Error('Código no válido');
 
-  // Si es un código ISO estándar de 2 o 3 letras
-  if (/^[A-Za-z]{2,3}$/.test(cleanCode)) {
-    try {
-      const res = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/codes.alpha_3/${cleanCode.toUpperCase()}`);
-      if (res && typeof res === 'object' && 'data' in res && res.data) {
-        const objects = (res.data as { objects?: Country[] }).objects;
-        if (Array.isArray(objects) && objects.length > 0) return objects[0];
-      }
-    } catch {
-      // si no está por alpha_3, intentamos por alpha_2
-      try {
-        const res2 = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/codes.alpha_2/${cleanCode.toUpperCase()}`);
-        if (res2 && typeof res2 === 'object' && 'data' in res2 && res2.data) {
-          const objects = (res2.data as { objects?: Country[] }).objects;
-          if (Array.isArray(objects) && objects.length > 0) return objects[0];
-        }
-      } catch {
-        // pasamos al fallback por nombre
-      }
-    }
-  }
+  try {
+    const respuesta = await fetchFromApi(`/codes.alpha_3/${codigo}`);
+    if (respuesta.data?.objects?.[0]) return respuesta.data.objects[0];
+  } catch {}
 
-  // Fallback por nombre común (para territorios especiales o no reconocidos oficialmente)
-  const nameRes = await fetchFromApi<{ data?: { objects?: Country[] } | Country }>(`/names.common/${encodeURIComponent(cleanCode)}`);
-  if (nameRes && typeof nameRes === 'object' && 'data' in nameRes && nameRes.data) {
-    const objects = (nameRes.data as { objects?: Country[] }).objects;
-    if (Array.isArray(objects) && objects.length > 0) return objects[0];
-  }
+  try {
+    const respuesta = await fetchFromApi(`/codes.alpha_2/${codigo}`);
+    if (respuesta.data?.objects?.[0]) return respuesta.data.objects[0];
+  } catch {}
+
+  try {
+    const respuesta = await fetchFromApi(`/names.common/${encodeURIComponent(code.trim())}`);
+    if (respuesta.data?.objects?.[0]) return respuesta.data.objects[0];
+  } catch {}
+
 
   throw new Error(`No se pudo encontrar el país "${code}" en la API`);
 }
+

@@ -45,16 +45,17 @@ const ISO3_TO_ISO2: Record<string, string> = {
 
 export function getCountryNameFromCode(code: string): string {
   if (!code) return '';
-  const clean = code.trim().toUpperCase();
-  const alpha2 = ISO3_TO_ISO2[clean];
+  const codigo = code.trim().toUpperCase();
+  const alpha2 = ISO3_TO_ISO2[codigo];
   if (alpha2) {
     try {
-      return regionNames.of(alpha2) || clean;
+      return regionNames.of(alpha2) || codigo;
     } catch {
-      return clean;
+      return codigo;
     }
   }
-  return clean;
+  return codigo;
+
 }
 
 
