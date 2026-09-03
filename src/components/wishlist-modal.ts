@@ -1,52 +1,66 @@
 import { addToWishlist, getWishlist, removeFromWishlist } from '../services/storage.service';
-import { openConfirmationModal } from './modal';
+
 
 export function renderWishlistFormModal(): string {
   return `
     <div class="wishlist-modal-backdrop is-hidden" id="wishlist-modal-backdrop">
       <div class="wishlist-modal">
-        <div class="wishlist-modal__header">
-          <h3 id="wishlist-modal-title">Guardar en favoritos</h3>
-          <button type="button" class="wishlist-modal__close" id="close-wishlist-modal">×</button>
+        <div id="wishlist-modal-form-view">
+          <div class="wishlist-modal__header">
+            <h3 id="wishlist-modal-title">Guardar en favoritos</h3>
+            <button type="button" class="wishlist-modal__close" id="close-wishlist-modal">×</button>
+          </div>
+
+          <form id="wishlist-form" class="wishlist-form" novalidate>
+            <div class="form-group">
+              <label for="wishlist-priority">Prioridad</label>
+              <select id="wishlist-priority" class="form-select" name="priority" required>
+                <option value="1">1 - Muy baja</option>
+                <option value="2">2 - Baja</option>
+                <option value="3" selected>3 - Media</option>
+                <option value="4">4 - Alta</option>
+                <option value="5">5 - Muy alta</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="wishlist-category">Categoría</label>
+              <select id="wishlist-category" class="form-select" name="category" required>
+                <option value="Vacaciones">Vacaciones</option>
+                <option value="Turismo">Turismo</option>
+                <option value="Aventura">Aventura</option>
+                <option value="Cultura">Cultura</option>
+                <option value="Trabajo">Trabajo</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="wishlist-note">Nota (opcional, máx. 60 caracteres)</label>
+              <textarea id="wishlist-note" class="form-textarea" name="note" maxlength="60" rows="2" placeholder="Observaciones breves sobre este destino..."></textarea>
+            </div>
+
+            <div class="wishlist-modal__actions">
+              <button type="submit" class="btn btn-primary">Guardar</button>
+              <button type="button" class="btn btn-secondary" id="cancel-wishlist-form">Cancelar</button>
+            </div>
+
+            <p class="form-message" id="wishlist-form-message"></p>
+          </form>
         </div>
 
-        <form id="wishlist-form" class="wishlist-form" novalidate>
-          <div class="form-group">
-            <label for="wishlist-priority">Prioridad</label>
-            <select id="wishlist-priority" class="form-select" name="priority" required>
-              <option value="1">1 - Muy baja</option>
-              <option value="2">2 - Baja</option>
-              <option value="3" selected>3 - Media</option>
-              <option value="4">4 - Alta</option>
-              <option value="5">5 - Muy alta</option>
-            </select>
-          </div>
+        <div id="wishlist-modal-success" class="wishlist-modal__success is-hidden">
+          <div class="wishlist-modal__success-icon">✓</div>
+          <h3 class="wishlist-modal__success-title">Destino guardado con éxito</h3>
+        </div>
 
-          <div class="form-group">
-            <label for="wishlist-category">Categoría</label>
-            <select id="wishlist-category" class="form-select" name="category" required>
-              <option value="Vacaciones">Vacaciones</option>
-              <option value="Turismo">Turismo</option>
-              <option value="Aventura">Aventura</option>
-              <option value="Cultura">Cultura</option>
-              <option value="Trabajo">Trabajo</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="wishlist-note">Nota (opcional, máx. 60 caracteres)</label>
-            <textarea id="wishlist-note" class="form-textarea" name="note" maxlength="60" rows="2" placeholder="Observaciones breves sobre este destino..."></textarea>
-          </div>
-
-          <div class="wishlist-modal__actions">
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <button type="button" class="btn btn-secondary" id="cancel-wishlist-form">Cancelar</button>
-          </div>
-
-          <p class="form-message" id="wishlist-form-message"></p>
-        </form>
+        <div id="wishlist-modal-error" class="wishlist-modal__error is-hidden">
+          <div class="wishlist-modal__error-icon">✕</div>
+          <h3 class="wishlist-modal__error-title">No se puede guardar este destino porque ya está en favoritos</h3>
+        </div>
       </div>
     </div>
+
+
   `;
 }
 
@@ -91,6 +105,37 @@ export function initWishlistModal(options: {
   const cancelDeleteButton = document.getElementById('cancel-delete-wishlist');
   const confirmDeleteButton = document.getElementById('confirm-delete-wishlist');
 
+  const formView = document.getElementById('wishlist-modal-form-view');
+  const successView = document.getElementById('wishlist-modal-success');
+  const errorView = document.getElementById('wishlist-modal-error');
+  let redirectTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const showSuccessState = () => {
+    if (formView && successView) {
+      formView.classList.add('is-hidden');
+      successView.classList.remove('is-hidden');
+    }
+
+    if (redirectTimer) clearTimeout(redirectTimer);
+    redirectTimer = setTimeout(() => {
+      closeFormModal();
+      onUpdate();
+    }, 1500);
+  };
+
+  const showErrorState = () => {
+    if (formView && errorView) {
+      formView.classList.add('is-hidden');
+      errorView.classList.remove('is-hidden');
+    }
+
+    if (redirectTimer) clearTimeout(redirectTimer);
+    redirectTimer = setTimeout(() => {
+      closeFormModal();
+      window.location.reload();
+    }, 2000);
+  };
+
   const closeFormModal = () => {
     formModal?.classList.add('is-hidden');
     form?.reset();
@@ -99,11 +144,30 @@ export function initWishlistModal(options: {
       message.classList.remove('form-message--error');
       message.classList.remove('form-message--success');
     }
+    if (formView && successView && errorView) {
+      formView.classList.remove('is-hidden');
+      successView.classList.add('is-hidden');
+      errorView.classList.add('is-hidden');
+    }
+    if (redirectTimer) {
+      clearTimeout(redirectTimer);
+      redirectTimer = null;
+    }
   };
 
   const openFormModal = () => {
     formModal?.classList.remove('is-hidden');
+    if (formView && successView && errorView) {
+      formView.classList.remove('is-hidden');
+      successView.classList.add('is-hidden');
+      errorView.classList.add('is-hidden');
+    }
+    if (redirectTimer) {
+      clearTimeout(redirectTimer);
+      redirectTimer = null;
+    }
   };
+
 
   const closeDeleteModal = () => {
     deleteModal?.classList.add('is-hidden');
@@ -178,29 +242,10 @@ export function initWishlistModal(options: {
     const alreadyExists = getWishlist().some((item) => item.countryCode === countryCode);
 
     if (alreadyExists) {
-      openConfirmationModal(
-        {
-          title: 'País ya guardado',
-          message: `Ya agregaste ${countryName} a tus favoritos. ¿Querés actualizar su información?`,
-          confirmText: 'Actualizar',
-          cancelText: 'No',
-          variant: 'primary',
-        },
-        () => {
-          addToWishlist({
-            countryCode,
-            countryName,
-            flag: flagUrl,
-            priority,
-            category,
-            note,
-          });
-          closeFormModal();
-          onUpdate();
-        }
-      );
+      showErrorState();
       return;
     }
+
 
     addToWishlist({
       countryCode,
@@ -211,21 +256,8 @@ export function initWishlistModal(options: {
       note,
     });
 
-    if (message) {
-      message.textContent = 'Destino guardado en favoritos.';
-      message.classList.remove('form-message--error');
-      message.classList.add('form-message--success');
-    }
-
-
-
-    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    if (submitBtn) submitBtn.disabled = true;
-
-    setTimeout(() => {
-      closeFormModal();
-      if (submitBtn) submitBtn.disabled = false;
-      onUpdate();
-    }, 900);
+    showSuccessState();
   });
+
+
 }
