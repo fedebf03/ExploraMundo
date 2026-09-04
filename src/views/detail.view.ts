@@ -104,7 +104,8 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
       ? country.borders
           .map((borderCode: string) => `<a href="#/detalle/${borderCode}" class="badge-border">${getCountryNameFromCode(borderCode)}</a>`)
           .join(' ')
-      : '<span class="country-detail-no-borders">No tiene países limítrofes</span>';
+      : '<span class="country-detail-no-borders">No comparte frontera con ningún país</span>';
+
 
 
     const codigoIso = country.codes?.alpha_3 || country.codes?.alpha_2 || 'Sin código asignado';
@@ -162,8 +163,9 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
 
 
             <div class="country-detail-section">
-              <h3>Países limítrofes</h3>
+              <h3>Países vecinos</h3>
               <div class="country-detail-borders-list">
+
                 ${fronteras}
               </div>
             </div>
