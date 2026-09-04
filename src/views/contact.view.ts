@@ -1,12 +1,14 @@
 declare const L: any;
 
 export function renderContact(container: HTMLElement) {
-  const studioName = 'Estudio Bruma Digital';
+  const studioName = 'ExploraMundo Travel';
   const officeAddress = 'Calle 48 N° 650, La Plata, Buenos Aires';
-  const email = 'hola@brumadigital.dev';
+
+  const email = 'contacto@exploramundo.com';
   const phone = '+54 221 456-7890';
-  const hours = 'Lunes a viernes · 9:00 a 18:00';
+  const hours = 'Lunes a viernes de 9:00 a 18:00 hs';
   const officeCoords = { lat: -34.9215, lng: -57.9536 };
+
 
   container.innerHTML = `
     <section class="view contact-page">
@@ -69,13 +71,14 @@ export function renderContact(container: HTMLElement) {
 
         <label class="field">
           <span>Asunto</span>
-          <input type="text" name="subject" placeholder="¿Sobre qué querés hablar?" maxlength="100" required />
+          <input type="text" name="subject" placeholder="Motivo de tu mensaje" maxlength="100" required />
         </label>
 
         <label class="field">
           <span>Mensaje</span>
-          <textarea name="message" rows="5" placeholder="Contanos tu idea, proyecto o consulta..." maxlength="500" required></textarea>
+          <textarea name="message" rows="5" placeholder="Escribí acá tu consulta o sugerencia sobre un destino..." maxlength="500" required></textarea>
         </label>
+
 
 
         <div class="contact-form__actions">

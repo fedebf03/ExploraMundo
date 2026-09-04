@@ -8,7 +8,6 @@ import { renderEmptyState } from '../components/empty-state';
 import { addToHistory, getWishlist } from '../services/storage.service';
 import {
   renderWishlistFormModal,
-  renderDeleteConfirmationModal,
   initWishlistModal,
 } from '../components/wishlist-modal';
 
@@ -179,7 +178,6 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
 
 
       ${renderWishlistFormModal()}
-      ${renderDeleteConfirmationModal()}
     `;
 
     initWishlistModal({

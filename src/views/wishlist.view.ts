@@ -1,15 +1,7 @@
 import { getWishlist, removeFromWishlist } from '../services/storage.service';
 import { renderEmptyState } from '../components/empty-state';
 import { openConfirmationModal } from '../components/modal';
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml } from '../utils/sanitize';
 
 function getPriorityLabel(priority: number): string {
   switch (priority) {
@@ -60,11 +52,13 @@ export function renderWishlist(container: HTMLElement) {
                   <span><strong>Categoría:</strong> ${escapeHtml(item.category)}</span>
                 </div>
 
-                <p class="wishlist-item__note"><strong>Nota:</strong> ${item.note ? escapeHtml(item.note) : 'Sin notas'}</p>
+                <p class="wishlist-item__note ${item.note ? '' : 'wishlist-item__note--empty'}">${item.note ? `<strong>Nota:</strong> ${escapeHtml(item.note)}` : 'Sin observaciones'}</p>
 
-                <button class="btn btn-secondary btn-delete wishlist-delete" type="button" data-id="${item.id}">
+
+                <button class="btn btn-danger wishlist-delete" type="button" data-id="${item.id}">
                   Eliminar
                 </button>
+
 
               </article>
             `

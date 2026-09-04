@@ -1,4 +1,5 @@
 import { addToWishlist, getWishlist, removeFromWishlist } from '../services/storage.service';
+import { openConfirmationModal } from './modal';
 
 
 export function renderWishlistFormModal(): string {
@@ -8,7 +9,6 @@ export function renderWishlistFormModal(): string {
         <div id="wishlist-modal-form-view">
           <div class="wishlist-modal__header">
             <h3 id="wishlist-modal-title">Guardar en favoritos</h3>
-            <button type="button" class="wishlist-modal__close" id="close-wishlist-modal">×</button>
           </div>
 
           <form id="wishlist-form" class="wishlist-form" novalidate>
@@ -26,10 +26,15 @@ export function renderWishlistFormModal(): string {
             <div class="form-group">
               <label for="wishlist-category">Categoría</label>
               <select id="wishlist-category" class="form-select" name="category" required>
-                <option value="Vacaciones">Vacaciones</option>
+                <option value="Vacaciones" selected>Vacaciones</option>
                 <option value="Turismo">Turismo</option>
-                <option value="Aventura">Aventura</option>
-                <option value="Cultura">Cultura</option>
+                <option value="Aventura y naturaleza">Aventura y naturaleza</option>
+                <option value="Playa">Playa</option>
+                <option value="Cultura e historia">Cultura e historia</option>
+                <option value="Gastronomía">Gastronomía</option>
+                <option value="Mochilero">Mochilero</option>
+                <option value="Estudio o intercambio">Estudio o intercambio</option>
+                <option value="Nómada digital">Nómada digital</option>
                 <option value="Trabajo">Trabajo</option>
               </select>
             </div>
@@ -40,8 +45,8 @@ export function renderWishlistFormModal(): string {
             </div>
 
             <div class="wishlist-modal__actions">
-              <button type="submit" class="btn btn-primary">Guardar</button>
               <button type="button" class="btn btn-secondary" id="cancel-wishlist-form">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
 
             <p class="form-message" id="wishlist-form-message"></p>
@@ -64,25 +69,7 @@ export function renderWishlistFormModal(): string {
   `;
 }
 
-export function renderDeleteConfirmationModal(): string {
-  return `
-    <div class="wishlist-delete-modal is-hidden" id="wishlist-delete-modal">
-      <div class="wishlist-modal">
-        <div class="wishlist-modal__header">
-          <h3 id="wishlist-delete-title">Eliminar de favoritos</h3>
-          <button type="button" class="wishlist-modal__close" id="close-delete-modal">×</button>
-        </div>
 
-        <p class="wishlist-delete-modal__text">¿Querés quitar este destino de tus favoritos?</p>
-
-        <div class="wishlist-modal__actions">
-          <button type="button" class="btn btn-danger" id="confirm-delete-wishlist">Eliminar</button>
-          <button type="button" class="btn btn-secondary" id="cancel-delete-wishlist">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
 
 export function initWishlistModal(options: {
   countryCode: string;
@@ -95,15 +82,10 @@ export function initWishlistModal(options: {
   const { countryCode, countryName, flagUrl, isSaved, savedItemId, onUpdate } = options;
 
   const formModal = document.getElementById('wishlist-modal-backdrop');
-  const deleteModal = document.getElementById('wishlist-delete-modal');
   const wishlistButton = document.getElementById('wishlist-toggle-button');
   const form = document.getElementById('wishlist-form') as HTMLFormElement | null;
   const message = document.getElementById('wishlist-form-message');
   const cancelButton = document.getElementById('cancel-wishlist-form');
-  const closeModalButton = document.getElementById('close-wishlist-modal');
-  const closeDeleteModalButton = document.getElementById('close-delete-modal');
-  const cancelDeleteButton = document.getElementById('cancel-delete-wishlist');
-  const confirmDeleteButton = document.getElementById('confirm-delete-wishlist');
 
   const formView = document.getElementById('wishlist-modal-form-view');
   const successView = document.getElementById('wishlist-modal-success');
@@ -138,6 +120,7 @@ export function initWishlistModal(options: {
 
   const closeFormModal = () => {
     formModal?.classList.add('is-hidden');
+    document.body.classList.remove('modal-open');
     form?.reset();
     if (message) {
       message.textContent = '';
@@ -157,6 +140,7 @@ export function initWishlistModal(options: {
 
   const openFormModal = () => {
     formModal?.classList.remove('is-hidden');
+    document.body.classList.add('modal-open');
     if (formView && successView && errorView) {
       formView.classList.remove('is-hidden');
       successView.classList.add('is-hidden');
@@ -169,33 +153,41 @@ export function initWishlistModal(options: {
   };
 
 
-  const closeDeleteModal = () => {
-    deleteModal?.classList.add('is-hidden');
-  };
-
-  const openDeleteModal = () => {
-    deleteModal?.classList.remove('is-hidden');
-  };
-
   wishlistButton?.addEventListener('click', () => {
     if (isSaved) {
-      openDeleteModal();
+      openConfirmationModal(
+        {
+          title: 'Eliminar de favoritos',
+          message: `¿Querés quitar ${countryName} de tus favoritos?`,
+          confirmText: 'Eliminar',
+          cancelText: 'Cancelar',
+          variant: 'danger',
+        },
+        () => {
+          const itemToDelete = savedItemId || getWishlist().find((item) => item.countryCode === countryCode)?.id;
+          if (itemToDelete) {
+            removeFromWishlist(itemToDelete);
+          }
+          onUpdate();
+        }
+      );
       return;
     }
     openFormModal();
   });
 
   cancelButton?.addEventListener('click', closeFormModal);
-  closeModalButton?.addEventListener('click', closeFormModal);
-  closeDeleteModalButton?.addEventListener('click', closeDeleteModal);
-  cancelDeleteButton?.addEventListener('click', closeDeleteModal);
 
-  confirmDeleteButton?.addEventListener('click', () => {
-    if (savedItemId) {
-      removeFromWishlist(savedItemId);
+  formModal?.addEventListener('click', (event) => {
+    if (event.target === formModal) {
+      closeFormModal();
     }
-    closeDeleteModal();
-    onUpdate();
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && formModal && !formModal.classList.contains('is-hidden')) {
+      closeFormModal();
+    }
   });
 
   form?.querySelectorAll('input, select, textarea').forEach((input) => {

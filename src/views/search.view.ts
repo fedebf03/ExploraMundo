@@ -71,24 +71,34 @@ async function executeSearch(isLoadMore = false) {
 
     if (loadMoreBtn) {
       loadMoreBtn.textContent = 'Cargar más destinos';
-      loadMoreBtn.hidden = !(currentResults.length < totalCount && nuevosPaises.length > 0);
+      const hasMore = nuevosPaises.length === LIMIT && currentResults.length < totalCount;
+      loadMoreBtn.hidden = !hasMore;
     }
 
   } catch {
-    grid.innerHTML = renderEmptyState({
-      title: 'No se pudieron cargar los países',
-      description: 'Probá de nuevo en unos momentos.',
-      actionHref: '#/busqueda',
-      actionText: 'Reintentar',
-    });
+    if (isLoadMore) {
+      currentOffset -= LIMIT;
+    } else {
+      grid.innerHTML = renderEmptyState({
+        title: 'No se pudieron cargar los países',
+        description: 'Probá de nuevo en unos momentos.',
+        actionHref: '#/busqueda',
+        actionText: 'Reintentar',
+      });
 
+      grid.querySelector('.empty-state a')?.addEventListener('click', (event) => {
+        event.preventDefault();
+        executeSearch(false);
+      });
 
+      if (count) count.textContent = '';
+    }
 
     if (loadMoreBtn) loadMoreBtn.hidden = true;
-    if (count) count.textContent = '';
   } finally {
     isLoading = false;
   }
+
 }
 
 export async function renderSearch(container: HTMLElement) {

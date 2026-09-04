@@ -12,10 +12,15 @@
   }
 }
 
+
+
+
+
 .country-detail-sidebar {
   display: flex;
   flex-direction: column;
 }
+
 
 .country-detail-flag-wrapper {
   width: 100%;
@@ -43,11 +48,14 @@
 }
 
 .country-detail-official {
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-style: italic;
   color: var(--text-secondary);
   margin-top: 4px;
   margin-bottom: 0;
+  opacity: 0.9;
 }
+
 
 .country-detail-section h3 {
   font-size: 1.1rem;
@@ -65,57 +73,76 @@
   margin: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 540px) {
   .country-info-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .country-info-list li {
-  padding-block: 4px;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.25rem;
+  transition: border-color var(--transition-fast);
+}
+
+.country-info-list li:hover {
+  border-color: var(--border-focus);
 }
 
 .country-info-list li strong {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .country-info-list li span {
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 0.98rem;
+  font-weight: 500;
 }
+
 
 .badge-border {
   display: inline-block;
   padding: 6px 14px;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   color: var(--accent-color);
   text-decoration: none;
   font-size: 0.85rem;
-  font-weight: 700;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  font-weight: 600;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .badge-border:hover {
   border-color: var(--border-focus);
   background-color: var(--bg-surface-hover);
+  transform: translateY(-2px);
 }
+
 
 .country-detail-back-btn {
-
+  display: inline-flex;
   margin-bottom: var(--space-lg);
+  transition: transform var(--transition-fast);
 }
+
+.country-detail-back-btn:hover {
+  transform: translateX(-3px);
+}
+
+
 
 .country-detail-fav-btn {
   width: 100%;
@@ -141,11 +168,17 @@
 }
 
 .country-detail-map {
-
-  height: 280px;
+  height: 340px;
   width: 100%;
   border-radius: var(--radius-sm);
   z-index: 1;
   border: 1px solid var(--border-color);
 }
+
+@media (min-width: 768px) {
+  .country-detail-map {
+    height: 420px;
+  }
+}
+
 

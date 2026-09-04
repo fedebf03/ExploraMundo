@@ -48,11 +48,11 @@
 }
 
 .contact-list__label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text-secondary);
 }
+
 
 .contact-list a {
   color: var(--primary-color);
@@ -86,11 +86,18 @@
 }
 
 .contact-map {
-  height: 270px;
+  height: 320px;
   width: 100%;
   border-radius: 6px;
   z-index: 1;
 }
+
+@media (min-width: 768px) {
+  .contact-map {
+    height: 380px;
+  }
+}
+
 
 
 

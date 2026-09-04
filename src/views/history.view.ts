@@ -1,14 +1,6 @@
 import { getHistory } from '../services/storage.service';
 import { renderEmptyState } from '../components/empty-state';
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml } from '../utils/sanitize';
 
 export function renderHistory(container: HTMLElement) {
   const historyEntries = getHistory();
