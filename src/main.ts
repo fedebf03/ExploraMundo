@@ -23,5 +23,8 @@ window.addEventListener('scroll', () => {
 });
 
 
+import { initPWA } from './pwa-init';
+
 initRouter();
+initPWA();
 
