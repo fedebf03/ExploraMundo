@@ -1,67 +1,125 @@
-// ============================================================================
-// Service Worker — PWA Template
-// Aplicaciones Móviles · Cátedra 2025-2026
-// ============================================================================
-// IMPORTANTE: No modificar la lógica de este archivo.
-// Solo debés actualizar la lista RECURSOS_SHELL con tus propios archivos.
-// ============================================================================
+// ============================================================
+// SERVICE WORKER — Aplicaciones Móviles · Cátedra 2025-2026
+// ============================================================
+// Este archivo está preconfigurado por la cátedra.
+// NO es necesario modificarlo para cumplir con la etapa PWA.
+// Implementa una estrategia Cache First para los recursos
+// estáticos del shell de la aplicación.
+// ============================================================
 
-const CACHE_NAME = 'pwa-cache-v1';
+const CACHE_NAME = 'app-shell-v1';
 
-// Lista de recursos estáticos de la aplicación (App Shell)
-// Agregá o modificá las rutas según la estructura de tu proyecto.
+// Recursos estáticos que se cachean durante la instalación.
+// Si tu aplicación tiene archivos adicionales (fuentes locales,
+// imágenes propias, etc.), podés agregarlos a esta lista.
 const RECURSOS_SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './favicon.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/favicon.png',
+  '/logo.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
-// Evento install: se ejecuta cuando el Service Worker se instala.
-// Descarga y guarda en caché todos los recursos del App Shell.
-self.addEventListener('install', (event) => {
+// ── INSTALACIÓN ──────────────────────────────────────────────
+// Se ejecuta cuando el Service Worker se registra por primera
+// vez o cuando el archivo sw.js cambió. Precachea los recursos
+// del shell para habilitar el funcionamiento offline.
+self.addEventListener('install', event => {
+  console.log('[SW] Instalando Service Worker...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Cacheando recursos del App Shell');
-      return cache.addAll(RECURSOS_SHELL);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[SW] Cacheando recursos del shell');
+        return cache.addAll(RECURSOS_SHELL);
+      })
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Evento activate: se ejecuta cuando el Service Worker toma el control.
-// Elimina cachés de versiones anteriores para no dejar archivos obsoletos.
-self.addEventListener('activate', (event) => {
+// ── ACTIVACIÓN ───────────────────────────────────────────────
+// Se ejecuta cuando el Service Worker toma el control.
+// Elimina cachés de versiones anteriores para liberar espacio.
+self.addEventListener('activate', event => {
+  console.log('[SW] Activando Service Worker...');
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => {
-            console.log('[SW] Eliminando caché antigua:', key);
-            return caches.delete(key);
-          })
-      );
-    })
+    caches.keys()
+      .then(nombres => {
+        return Promise.all(
+          nombres
+            .filter(nombre => nombre !== CACHE_NAME)
+            .map(nombre => {
+              console.log('[SW] Eliminando caché anterior:', nombre);
+              return caches.delete(nombre);
+            })
+        );
+      })
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Evento fetch: intercepta todas las peticiones de red.
-// Estrategia: Cache First con fallback a Network.
-// Si el recurso está en caché, lo devuelve inmediatamente (funciona offline).
-// Si no está, lo busca en la red.
-self.addEventListener('fetch', (event) => {
+// ── INTERCEPTACIÓN DE PETICIONES ─────────────────────────────
+// Estrategia Cache First para recursos estáticos:
+// 1. Busca el recurso en el caché local.
+// 2. Si está disponible, lo devuelve directamente (sin red).
+// 3. Si no está en caché, lo solicita a la red y lo guarda
+//    para futuras peticiones.
+//
+// Las peticiones a la API siempre van a la red (Network Only)
+// para garantizar datos actualizados.
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Peticiones a APIs externas: siempre a la red
+  // Modificá esta condición si tu API tiene un dominio distinto
+  if (event.request.url.includes('/api/') ||
+      !url.origin.includes(self.location.origin)) {
+
+    // Para peticiones de API: Network Only
+    // Si falla (sin conexión), no intentamos servir desde caché
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Respuesta de error amigable cuando no hay conexión
+        return new Response(
+          JSON.stringify({ error: 'Sin conexión. Los datos no están disponibles offline.' }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      })
+    );
+    return;
+  }
+
+  // Para recursos estáticos: Cache First
   event.respondWith(
-    caches.match(event.request).then((respuestaCache) => {
-      // Devuelve la respuesta cacheada si existe
-      if (respuestaCache) {
-        return respuestaCache;
-      }
-      // Si no está en caché, realiza la petición a la red
-      return fetch(event.request);
-    })
+    caches.match(event.request)
+      .then(respuestaCacheada => {
+        if (respuestaCacheada) {
+          return respuestaCacheada;
+        }
+
+        // No está en caché: solicitar a la red y guardar
+        return fetch(event.request)
+          .then(respuestaRed => {
+            // Solo cachear respuestas válidas
+            if (!respuestaRed || respuestaRed.status !== 200 ||
+                respuestaRed.type !== 'basic') {
+              return respuestaRed;
+            }
+
+            const copiaRespuesta = respuestaRed.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, copiaRespuesta);
+            });
+
+            return respuestaRed;
+          })
+          .catch(() => {
+            // Sin conexión y sin caché: página de fallback
+            if (event.request.destination === 'document') {
+              return caches.match('/index.html');
+            }
+          });
+      })
   );
 });
