@@ -5,7 +5,7 @@
 
 ---
 
-## Cómo correrlo en local
+## Pasos para la ejecución del repositorio
 
 1. **Instalar dependencias:**
    ```bash
