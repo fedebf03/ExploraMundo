@@ -10,7 +10,7 @@ export function initPWA(): void {
   if ('serviceWorker' in navigator) {
     const register = () => {
       navigator.serviceWorker
-        .register('/Aplicaciones-Web-PWA/sw.js')
+        .register('/ExploraMundo/sw.js')
         .then(registration => {
           console.log('[PWA] Service Worker registrado correctamente.');
           console.log('[PWA] Scope:', registration.scope);

@@ -1,29 +1,29 @@
 {
-  "id": "/Aplicaciones-Web-PWA/",
+  "id": "/ExploraMundo/",
   "name": "ExploraMundo - Guía de Países y Destinos",
   "short_name": "ExploraMundo",
   "description": "Guía interactiva de países, cultura, información y destinos del mundo",
-  "start_url": "/Aplicaciones-Web-PWA/",
-  "scope": "/Aplicaciones-Web-PWA/",
+  "start_url": "/ExploraMundo/",
+  "scope": "/ExploraMundo/",
   "display": "standalone",
   "background_color": "#070d19",
   "theme_color": "#0f1c34",
   "orientation": "any",
   "icons": [
     {
-      "src": "/Aplicaciones-Web-PWA/icons/icon-192.png",
+      "src": "/ExploraMundo/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/Aplicaciones-Web-PWA/icons/icon-192.png",
+      "src": "/ExploraMundo/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/Aplicaciones-Web-PWA/icons/icon-512.png",
+      "src": "/ExploraMundo/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

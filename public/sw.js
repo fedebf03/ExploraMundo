@@ -13,13 +13,13 @@ const CACHE_NAME = 'app-shell-v1';
 // Si tu aplicación tiene archivos adicionales (fuentes locales,
 // imágenes propias, etc.), podés agregarlos a esta lista.
 const RECURSOS_SHELL = [
-  '/Aplicaciones-Web-PWA/',
-  '/Aplicaciones-Web-PWA/index.html',
-  '/Aplicaciones-Web-PWA/manifest.json',
-  '/Aplicaciones-Web-PWA/favicon.png',
-  '/Aplicaciones-Web-PWA/logo.png',
-  '/Aplicaciones-Web-PWA/icons/icon-192.png',
-  '/Aplicaciones-Web-PWA/icons/icon-512.png'
+  '/ExploraMundo/',
+  '/ExploraMundo/index.html',
+  '/ExploraMundo/manifest.json',
+  '/ExploraMundo/favicon.png',
+  '/ExploraMundo/logo.png',
+  '/ExploraMundo/icons/icon-192.png',
+  '/ExploraMundo/icons/icon-512.png'
 ];
 
 // ── INSTALACIÓN ──────────────────────────────────────────────
@@ -117,7 +117,7 @@ self.addEventListener('fetch', event => {
           .catch(() => {
             // Sin conexión y sin caché: página de fallback
             if (event.request.destination === 'document') {
-              return caches.match('/Aplicaciones-Web-PWA/index.html');
+              return caches.match('/ExploraMundo/index.html');
             }
           });
       })
