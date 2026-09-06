@@ -1,0 +1,112 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: var(--touch-target-min);
+  padding: 0 1rem;
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+@media (min-width: 481px) {
+  .btn {
+    padding: 0 var(--space-lg);
+    font-size: 1rem;
+  }
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.scroll-top-btn {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), #0ea5e9);
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  line-height: 1;
+  box-shadow: 0 12px 24px rgba(14, 116, 144, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.94);
+  transition: opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  z-index: 120;
+  cursor: pointer;
+}
+
+.scroll-top-btn.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.scroll-top-btn:hover {
+  box-shadow: 0 14px 28px rgba(14, 116, 144, 0.34);
+}
+
+.scroll-top-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+@media (min-width: 481px) {
+  .scroll-top-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .scroll-top-btn {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+}
+
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-danger {
+  background: #b91c1c;
+  color: white;
+  border: 1px solid rgba(248, 113, 113, 0.8);
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+button,
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  min-height: var(--touch-target-min);
+  -webkit-tap-highlight-color: transparent;
+}

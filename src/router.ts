@@ -1,66 +1,49 @@
 import { renderHome } from './views/home.view';
+import { renderSearch } from './views/search.view';
+import { renderCountryDetail } from './views/detail.view';
+import { renderWishlist } from './views/wishlist.view';
+import { renderHistory } from './views/history.view';
+import { renderContact } from './views/contact.view';
 
-// función para arrancar a escuchar los cambios de pantalla
 export function initRouter() {
-  // escuchamos cuando cambia el hash en la url o cuando carga la página
   window.addEventListener('hashchange', handleRouteChange);
-  window.addEventListener('DOMContentLoaded', handleRouteChange);
-
-  // ejecutamos una vez al principio para cargar la vista que corresponda
   handleRouteChange();
 }
 
+
 function handleRouteChange() {
-  // agarramos la ruta actual del hash (si no hay nada mandamos al inicio)
   const hash = window.location.hash || '#/';
   const app = document.getElementById('app');
 
   if (!app) return;
 
-  // pintamos de activo el botón de la barra según la sección
   updateActiveNavLink(hash);
 
-  // según la ruta cargamos la pantalla que corresponda
-  switch (hash) {
-    case '#/':
+  switch (true) {
+    case hash === '#/' || hash === '':
       renderHome(app);
       break;
 
-    case '#/search':
-      app.innerHTML = `
-        <section class="view">
-          <h1>🔍 Búsqueda de Países</h1>
-          <p>Filtros y resultados.</p>
-        </section>
-      `;
+    case hash === '#/busqueda':
+      renderSearch(app);
       break;
 
-    case '#/wishlist':
-      app.innerHTML = `
-        <section class="view">
-          <h1>💖 Lista de Deseos</h1>
-          <p>Países guardados.</p>
-        </section>
-      `;
+    case hash === '#/favoritos':
+      renderWishlist(app);
       break;
 
-    case '#/history':
-      app.innerHTML = `
-        <section class="view">
-          <h1>🕒 Historial de Visitas</h1>
-          <p>Países que estuviste observando.</p>
-        </section>
-      `;
+    case hash.startsWith('#/detalle/'):
+      renderCountryDetail(app, hash.replace('#/detalle/', ''));
       break;
 
-    case '#/contact':
-      app.innerHTML = `
-        <section class="view">
-          <h1>📍 Contacto</h1>
-          <p>Información del lugar.</p>
-        </section>
-      `;
+    case hash === '#/historial':
+      renderHistory(app);
       break;
+
+    case hash === '#/contacto':
+      renderContact(app);
+      break;
+
 
     default:
       app.innerHTML = `
@@ -72,12 +55,10 @@ function handleRouteChange() {
   }
 }
 
-// función para ponerle la clase .active al botón de la navbar que tocamos
 function updateActiveNavLink(currentHash: string) {
   const navLinks = document.querySelectorAll('.nav-item');
   navLinks.forEach((link) => {
     const route = link.getAttribute('data-route');
-    // comparamos si la ruta del botón coincide con el hash actual
     if (route && (currentHash === `#${route}` || (currentHash === '#/' && route === '/'))) {
       link.classList.add('active');
     } else {
