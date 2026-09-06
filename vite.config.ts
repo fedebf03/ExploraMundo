@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './',
+  base: '/Aplicaciones-Web-PWA/',
   server: {
     port: 3000,
     open: true
