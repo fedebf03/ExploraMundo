@@ -2,7 +2,7 @@ declare const L: any;
 
 export function renderContact(container: HTMLElement) {
   const studioName = 'ExploraMundo Travel';
-  const officeAddress = 'Calle 48 N° 650, La Plata, Buenos Aires';
+  const officeAddress = 'Calle 14 entre 51 y 53, La Plata';
 
   const email = 'contacto@exploramundo.com';
   const phone = '+54 221 456-7890';
@@ -230,4 +230,3 @@ export function renderContact(container: HTMLElement) {
   });
 
 }
-

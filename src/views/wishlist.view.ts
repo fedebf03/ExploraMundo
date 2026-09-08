@@ -2,6 +2,7 @@ import { getWishlist, removeFromWishlist } from '../services/storage.service';
 import { renderEmptyState } from '../components/empty-state';
 import { openConfirmationModal } from '../components/modal';
 import { escapeHtml } from '../utils/sanitize';
+import { DEFAULT_FLAG_FALLBACK } from '../components/country-card';
 
 function getPriorityLabel(priority: number): string {
   switch (priority) {
@@ -39,7 +40,7 @@ export function renderWishlist(container: HTMLElement) {
               <article class="wishlist-item" data-id="${item.id}" data-country-code="${escapeHtml(item.countryCode)}">
                 <div class="wishlist-item__top">
                   <div class="wishlist-item__flag-wrap">
-                    <img src="${escapeHtml(item.flag)}" alt="Bandera de ${escapeHtml(item.countryName)}" class="wishlist-item__flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
+                    <img src="${escapeHtml(item.flag)}" alt="Bandera de ${escapeHtml(item.countryName)}" class="wishlist-item__flag" onerror="this.onerror=null; this.src='${DEFAULT_FLAG_FALLBACK}';" />
                   </div>
                   <div class="wishlist-item__meta">
                     <h3>${escapeHtml(item.countryName)}</h3>

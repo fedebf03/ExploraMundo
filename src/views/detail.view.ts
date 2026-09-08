@@ -2,7 +2,7 @@ declare const L: any;
 
 import { getCountryByCode } from '../services/api.service';
 
-import { getFlagUrl, getCountryDisplayName } from '../components/country-card';
+import { getFlagUrl, getCountryDisplayName, DEFAULT_FLAG_FALLBACK } from '../components/country-card';
 import { renderLoader } from '../components/loader';
 import { renderEmptyState } from '../components/empty-state';
 import { addToHistory, getWishlist } from '../services/storage.service';
@@ -122,7 +122,7 @@ export async function renderCountryDetail(container: HTMLElement, countryCode: s
         <div class="country-detail-layout">
           <div class="country-detail-sidebar">
             <div class="country-detail-flag-wrapper">
-              <img src="${flagUrl}" alt="Bandera de ${name}" class="country-detail-flag" onerror="this.src='https://flagcdn.com/w640/un.png';" />
+              <img src="${flagUrl}" alt="Bandera de ${name}" class="country-detail-flag" onerror="this.onerror=null; this.src='${DEFAULT_FLAG_FALLBACK}';" />
             </div>
 
             <button id="wishlist-toggle-button" class="${wishlistButtonClass} country-detail-fav-btn" type="button">

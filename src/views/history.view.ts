@@ -1,6 +1,7 @@
 import { getHistory } from '../services/storage.service';
 import { renderEmptyState } from '../components/empty-state';
 import { escapeHtml } from '../utils/sanitize';
+import { DEFAULT_FLAG_FALLBACK } from '../components/country-card';
 
 export function renderHistory(container: HTMLElement) {
   const historyEntries = getHistory();
@@ -34,7 +35,7 @@ export function renderHistory(container: HTMLElement) {
                         src="${escapeHtml(historyEntry.flag)}"
                         alt="Bandera de ${escapeHtml(historyEntry.countryName)}"
                         class="history-item__flag"
-                        onerror="this.src='https://flagcdn.com/w640/un.png';"
+                        onerror="this.onerror=null; this.src='${DEFAULT_FLAG_FALLBACK}';"
                       />
                     </div>
 
