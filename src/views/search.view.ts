@@ -107,7 +107,7 @@ export async function renderSearch(container: HTMLElement) {
       <form id="search-form" class="search-form">
         <div class="form-group">
           <label for="search-input" class="search-label">Nombre o capital</label>
-          <input type="search" id="search-input" class="form-input" placeholder="Ej: Argentina, Tokio, París..." autocomplete="off" />
+          <input type="search" id="search-input" class="form-input" placeholder="Ej: Argentina, Tokyo, París..." autocomplete="off" />
         </div>
 
         <div class="form-group">
